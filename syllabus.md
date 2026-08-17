@@ -8,7 +8,7 @@
 
 **Crucial details:**
 
-Classroom: 503
+Classroom: 502
 
 Credit hours: 3
 
