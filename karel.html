@@ -1,0 +1,1109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Karel the Robot</title>
+<style>
+  :root{
+    --mono: ui-monospace, "SF Mono", SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+    --ui: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    --fs: 15px;
+    --lh: 23px;
+    --pad: 12px;
+    --ink: #000;
+    --rule: #000;
+    --kw: #7b1fa2;
+    --def: #a3005c;
+    --com: #4f9a6a;
+    --active: #dbeafe;
+    --errline: #fde4e4;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;background:#fff;color:var(--ink);font-family:var(--ui)}
+  body{padding:22px 26px 40px}
+
+  .app{display:flex;gap:34px;align-items:flex-start;flex-wrap:wrap}
+  .left{flex:1 1 520px;min-width:340px;max-width:820px}
+  .right{flex:0 0 auto}
+
+  /* ---------- editor ---------- */
+  .editor{position:relative;border:1px solid var(--rule);height:540px;overflow:hidden;background:#fff}
+  .editor pre, .editor textarea{
+    margin:0;font-family:var(--mono);font-size:var(--fs);line-height:var(--lh);
+    padding:var(--pad);border:0;tab-size:4;
+  }
+  .editor pre{
+    position:absolute;inset:0;overflow:hidden;white-space:pre;pointer-events:none;
+  }
+  .editor pre .row{display:block;height:var(--lh)}
+  .editor pre .row.active{background:var(--active);box-shadow:-12px 0 0 var(--active),12px 0 0 var(--active)}
+  .editor pre .row.badline{background:var(--errline);box-shadow:-12px 0 0 var(--errline),12px 0 0 var(--errline)}
+  .editor textarea{
+    position:absolute;inset:0;width:100%;height:100%;resize:none;outline:none;
+    background:transparent;color:transparent;caret-color:#000;overflow:auto;white-space:pre;
+  }
+  .editor textarea::selection{background:#b9d5f6}
+  .editor:focus-within{outline:2px solid #1a5fb4;outline-offset:1px}
+  .kw{color:var(--kw)} .df{color:var(--def)} .cm{color:var(--com)}
+
+  /* ---------- controls ---------- */
+  .controls{display:flex;align-items:center;gap:10px;margin-top:16px;flex-wrap:wrap}
+  button{
+    font-family:var(--ui);font-size:15px;padding:9px 15px;background:#fff;
+    border:1px solid #767676;border-radius:6px;cursor:pointer;color:#000;
+  }
+  button:hover:not(:disabled){background:#f2f2f2}
+  button:active:not(:disabled){background:#e6e6e6}
+  button:disabled{color:#9a9a9a;border-color:#cfcfcf;cursor:default}
+  button:focus-visible{outline:2px solid #1a5fb4;outline-offset:2px}
+  .speed{display:flex;align-items:center;gap:8px;font-size:13px;color:#444;margin-left:4px}
+  .speed input{width:130px}
+  .speed .val{min-width:52px;font-variant-numeric:tabular-nums}
+
+  #status{margin-top:12px;font-size:14px;line-height:1.5;min-height:2.6em;font-family:var(--mono)}
+  #status.err{color:#b3261e}
+  #status.ok{color:#3f6d4e}
+
+  details.ref{margin-top:6px;font-size:13px;color:#333}
+  details.ref summary{cursor:pointer;color:#1a5fb4}
+  details.ref .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:2px 18px;margin:10px 0 0}
+  details.ref code{font-family:var(--mono);font-size:12.5px}
+  details.ref p{margin:10px 0 0;max-width:62ch;color:#555}
+
+  /* ---------- world ---------- */
+  .worldbar{display:flex;justify-content:flex-start;margin-bottom:20px}
+  select{
+    font-family:var(--ui);font-size:16px;padding:9px 12px;border:1px solid #767676;
+    border-radius:6px;background:#fff;cursor:pointer;color:#000
+  }
+  select:focus-visible{outline:2px solid #1a5fb4;outline-offset:2px}
+  .stage{width:600px;max-width:100%}
+  .stage svg{display:block;margin:0 auto;overflow:visible}
+  #textdesc{
+    margin-top:18px;border:1px solid #bbb;padding:12px 14px;font-family:var(--mono);
+    font-size:13px;line-height:1.6;white-space:pre-wrap;color:#111;background:#fafafa;display:none
+  }
+  #textdesc.on{display:block}
+
+  @media (max-width:1000px){
+    body{padding:16px}
+    .app{gap:26px}
+    .stage{width:100%}
+    .editor{height:380px}
+  }
+  @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+
+<div class="app">
+  <div class="left">
+    <div class="editor" id="editor">
+      <pre id="hl" aria-hidden="true"></pre>
+      <textarea id="code" spellcheck="false" autocapitalize="off" autocomplete="off"
+        wrap="off" aria-label="Karel program"></textarea>
+    </div>
+
+    <div class="controls">
+      <button id="btnRun">▶ Run Program</button>
+      <button id="btnStep">Step</button>
+      <button id="btnPause" disabled>Pause</button>
+      <button id="btnReset">Reset</button>
+      <label class="speed">Speed
+        <input id="speed" type="range" min="0" max="10" value="5" aria-label="Speed">
+        <span class="val" id="speedVal">medium</span>
+      </label>
+      <button id="btnDesc">Show Text Descriptions</button>
+    </div>
+
+    <div id="status"></div>
+
+    <details class="ref">
+      <summary>What Karel understands</summary>
+      <div class="grid">
+        <code>move()</code>
+        <code>turn_left()</code>
+        <code>put_beeper()</code>
+        <code>pick_beeper()</code>
+        <code>front_is_clear()</code>
+        <code>front_is_blocked()</code>
+        <code>left_is_clear()</code>
+        <code>left_is_blocked()</code>
+        <code>right_is_clear()</code>
+        <code>right_is_blocked()</code>
+        <code>back_is_clear()</code>
+        <code>back_is_blocked()</code>
+        <code>beepers_present()</code>
+        <code>no_beepers_present()</code>
+        <code>facing_north()</code>
+        <code>facing_south()</code>
+        <code>facing_east()</code>
+        <code>facing_west()</code>
+      </div>
+      <p>Also: <code>def name():</code> to teach Karel a new command, <code>if</code> / <code>elif</code> /
+      <code>else</code>, <code>while</code>, and <code>not</code> / <code>and</code> / <code>or</code>.</p>
+    </details>
+  </div>
+
+  <div class="right">
+    <div class="worldbar">
+      <select id="worldSel" aria-label="Change World"></select>
+    </div>
+    <div class="stage">
+      <div id="svgHost"></div>
+    </div>
+    <div id="textdesc" role="status"></div>
+  </div>
+</div>
+
+<script>
+"use strict";
+
+/* ============================================================
+   Errors
+   ============================================================ */
+class KarelError extends Error {
+  constructor(msg, line){ super(msg); this.line = line; }
+}
+
+/* ============================================================
+   World model
+   heading: 0=east 1=north 2=west 3=south
+   walls stored canonically: only 'N' (top edge) and 'E' (right edge) of a cell
+   ============================================================ */
+const DIRNAME = ["east","north","west","south"];
+const DELTA = [[1,0],[0,1],[-1,0],[0,-1]];
+
+function canonWall(x, y, side){
+  switch(side){
+    case "N": return x+","+y+",N";
+    case "S": return x+","+(y-1)+",N";
+    case "E": return x+","+y+",E";
+    case "W": return (x-1)+","+y+",E";
+  }
+  throw new Error("bad side "+side);
+}
+
+function makeWorld(spec){
+  const w = {
+    cols: spec.cols, rows: spec.rows,
+    karel: { x: spec.karel[0], y: spec.karel[1], h: spec.karel[2] },
+    beepers: Object.assign({}, spec.beepers || {}),
+    walls: {}
+  };
+  (spec.walls || []).forEach(function(t){ w.walls[canonWall(t[0], t[1], t[2])] = true; });
+  return w;
+}
+function cloneWorld(w){
+  return {
+    cols:w.cols, rows:w.rows,
+    karel:{x:w.karel.x, y:w.karel.y, h:w.karel.h},
+    beepers:Object.assign({}, w.beepers),
+    walls:Object.assign({}, w.walls)
+  };
+}
+
+function inBounds(w,x,y){ return x>=1 && y>=1 && x<=w.cols && y<=w.rows; }
+
+function blockedFrom(w, x, y, h){
+  const d = DELTA[h];
+  const nx = x + d[0], ny = y + d[1];
+  if(!inBounds(w,nx,ny)) return true;
+  const side = h===0 ? "E" : h===1 ? "N" : h===2 ? "W" : "S";
+  return !!w.walls[canonWall(x,y,side)];
+}
+
+function beeperCount(w,x,y){ return w.beepers[x+","+y] || 0; }
+
+/* ---------- primitive actions ---------- */
+const ACTIONS = {
+  move: function(w, line){
+    const k = w.karel;
+    if(blockedFrom(w, k.x, k.y, k.h)){
+      const d = DELTA[k.h], nx = k.x+d[0], ny = k.y+d[1];
+      const why = inBounds(w,nx,ny) ? "a wall is in the way" : "the edge of the world is in the way";
+      throw new KarelError("Karel tried to move "+DIRNAME[k.h]+" from ("+k.x+", "+k.y+") but "+why+".", line);
+    }
+    const d = DELTA[k.h];
+    k.x += d[0]; k.y += d[1];
+  },
+  turn_left: function(w){ w.karel.h = (w.karel.h + 1) % 4; },
+  put_beeper: function(w){
+    const key = w.karel.x+","+w.karel.y;
+    w.beepers[key] = (w.beepers[key] || 0) + 1;
+  },
+  pick_beeper: function(w, line){
+    const k = w.karel, key = k.x+","+k.y;
+    if(!w.beepers[key]){
+      throw new KarelError("Karel tried to pick up a beeper at ("+k.x+", "+k.y+") but there isn't one there.", line);
+    }
+    w.beepers[key] -= 1;
+    if(w.beepers[key] === 0) delete w.beepers[key];
+  }
+};
+
+/* ---------- predicates ---------- */
+function leftOf(h){ return (h+1)%4; }
+function rightOf(h){ return (h+3)%4; }
+function backOf(h){ return (h+2)%4; }
+
+const PREDS = {
+  front_is_clear:   function(w){ return !blockedFrom(w,w.karel.x,w.karel.y,w.karel.h); },
+  front_is_blocked: function(w){ return  blockedFrom(w,w.karel.x,w.karel.y,w.karel.h); },
+  left_is_clear:    function(w){ return !blockedFrom(w,w.karel.x,w.karel.y,leftOf(w.karel.h)); },
+  left_is_blocked:  function(w){ return  blockedFrom(w,w.karel.x,w.karel.y,leftOf(w.karel.h)); },
+  right_is_clear:   function(w){ return !blockedFrom(w,w.karel.x,w.karel.y,rightOf(w.karel.h)); },
+  right_is_blocked: function(w){ return  blockedFrom(w,w.karel.x,w.karel.y,rightOf(w.karel.h)); },
+  back_is_clear:    function(w){ return !blockedFrom(w,w.karel.x,w.karel.y,backOf(w.karel.h)); },
+  back_is_blocked:  function(w){ return  blockedFrom(w,w.karel.x,w.karel.y,backOf(w.karel.h)); },
+  beepers_present:    function(w){ return beeperCount(w,w.karel.x,w.karel.y) > 0; },
+  no_beepers_present: function(w){ return beeperCount(w,w.karel.x,w.karel.y) === 0; },
+  facing_east:  function(w){ return w.karel.h === 0; },
+  facing_north: function(w){ return w.karel.h === 1; },
+  facing_west:  function(w){ return w.karel.h === 2; },
+  facing_south: function(w){ return w.karel.h === 3; },
+  not_facing_east:  function(w){ return w.karel.h !== 0; },
+  not_facing_north: function(w){ return w.karel.h !== 1; },
+  not_facing_west:  function(w){ return w.karel.h !== 2; },
+  not_facing_south: function(w){ return w.karel.h !== 3; }
+};
+
+/* ============================================================
+   Tokenizer  (indent-sensitive)
+   ============================================================ */
+const KEYWORDS = new Set(["def","if","elif","else","while","not","and","or","pass"]);
+
+function tokenize(src){
+  const lines = src.replace(/\r/g,"").replace(/\t/g,"    ").split("\n");
+  const toks = [];
+  const indents = [0];
+
+  for(let i=0;i<lines.length;i++){
+    const lineNo = i+1;
+    let raw = lines[i];
+    const hash = raw.indexOf("#");
+    if(hash >= 0) raw = raw.slice(0, hash);
+    if(raw.trim() === "") continue;
+
+    const trimmed = raw.trim();
+    // stanfordkarel boilerplate: accepted and ignored
+    if(/^(from|import)\b/.test(trimmed)) continue;
+
+    const indent = raw.match(/^ */)[0].length;
+    if(indent > indents[indents.length-1]){
+      indents.push(indent);
+      toks.push({t:"INDENT", line:lineNo});
+    } else if(indent < indents[indents.length-1]){
+      while(indent < indents[indents.length-1]){
+        indents.pop();
+        toks.push({t:"DEDENT", line:lineNo});
+      }
+      if(indent !== indents[indents.length-1]){
+        throw new KarelError("This line's indentation doesn't line up with any block above it.", lineNo);
+      }
+    }
+
+    let j = 0;
+    while(j < trimmed.length){
+      const c = trimmed[j];
+      if(c === " "){ j++; continue; }
+      if(/[A-Za-z_]/.test(c)){
+        let k = j;
+        while(k < trimmed.length && /[A-Za-z0-9_]/.test(trimmed[k])) k++;
+        const word = trimmed.slice(j,k);
+        toks.push({t: KEYWORDS.has(word) ? word : "NAME", v: word, line: lineNo});
+        j = k; continue;
+      }
+      if(/[0-9]/.test(c)){
+        throw new KarelError(
+          "Karel's language has no numbers. Loops key off what Karel can sense, like while front_is_clear().",
+          lineNo);
+      }
+      if(c === "("){ toks.push({t:"(", line:lineNo}); j++; continue; }
+      if(c === ")"){ toks.push({t:")", line:lineNo}); j++; continue; }
+      if(c === ":"){ toks.push({t:":", line:lineNo}); j++; continue; }
+      throw new KarelError('Karel doesn\'t understand the character "'+c+'".', lineNo);
+    }
+    toks.push({t:"NEWLINE", line:lineNo});
+  }
+
+  const last = lines.length;
+  while(indents.length > 1){ indents.pop(); toks.push({t:"DEDENT", line:last}); }
+  toks.push({t:"EOF", line:last});
+  return toks;
+}
+
+/* ============================================================
+   Parser
+   ============================================================ */
+function Parser(toks){ this.toks = toks; this.i = 0; }
+Parser.prototype.peek = function(){ return this.toks[this.i]; };
+Parser.prototype.at = function(t){ return this.toks[this.i].t === t; };
+Parser.prototype.next = function(){ return this.toks[this.i++]; };
+Parser.prototype.expect = function(t, msg){
+  if(!this.at(t)) throw new KarelError(msg, this.peek().line);
+  return this.next();
+};
+
+Parser.prototype.parseProgram = function(){
+  const defs = {}, body = [];
+  while(!this.at("EOF")){
+    if(this.at("NEWLINE")){ this.next(); continue; }
+    if(this.at("def")){
+      const d = this.parseDef();
+      if(defs[d.name]) throw new KarelError('There are two functions named '+d.name+'().', d.line);
+      defs[d.name] = d;
+    } else {
+      body.push(this.parseStmt());
+    }
+  }
+  return {defs:defs, body:body};
+};
+
+Parser.prototype.parseDef = function(){
+  const kw = this.next();
+  const name = this.expect("NAME", 'Give the new command a name after "def".').v;
+  this.expect("(", 'Write it as "def '+name+'():".');
+  this.expect(")", "Karel's commands don't take anything in the parentheses.");
+  this.expect(":", 'Add a ":" at the end of the "def" line.');
+  const body = this.parseBlock(name+"()");
+  return {type:"def", name:name, body:body, line:kw.line};
+};
+
+Parser.prototype.parseBlock = function(what){
+  this.expect("NEWLINE", "Start the indented block on the next line.");
+  this.expect("INDENT", "Indent the lines that belong to "+what+".");
+  const stmts = [];
+  while(!this.at("DEDENT") && !this.at("EOF")){
+    if(this.at("NEWLINE")){ this.next(); continue; }
+    stmts.push(this.parseStmt());
+  }
+  if(this.at("DEDENT")) this.next();
+  if(!stmts.length) throw new KarelError(what+" is empty — put at least one command inside it.", this.peek().line);
+  return stmts;
+};
+
+Parser.prototype.parseStmt = function(){
+  const tk = this.peek();
+  if(tk.t === "if") return this.parseIf();
+  if(tk.t === "while"){
+    this.next();
+    const cond = this.parseExpr();
+    this.expect(":", 'Add a ":" at the end of the "while" line.');
+    const body = this.parseBlock("this while loop");
+    return {type:"while", cond:cond, body:body, line:tk.line};
+  }
+  if(tk.t === "def") throw new KarelError('Teach Karel new commands at the left margin, not inside another block.', tk.line);
+  if(tk.t === "pass"){ this.next(); this.expect("NEWLINE","Put each command on its own line."); return {type:"pass", line:tk.line}; }
+  if(tk.t === "else" || tk.t === "elif"){
+    throw new KarelError('"'+tk.t+'" needs a matching "if" directly above it, at the same indentation.', tk.line);
+  }
+  if(tk.t === "NAME"){
+    const call = this.parseCall();
+    this.expect("NEWLINE", "Put each command on its own line.");
+    return {type:"call_stmt", call:call, line:tk.line};
+  }
+  throw new KarelError('Karel doesn\'t know what to do with "'+(tk.v||tk.t)+'".', tk.line);
+};
+
+Parser.prototype.parseIf = function(){
+  const tk = this.next();                 // 'if' or 'elif'
+  const cond = this.parseExpr();
+  this.expect(":", 'Add a ":" at the end of the "'+tk.t+'" line.');
+  const body = this.parseBlock('this "'+tk.t+'"');
+  let orelse = null;
+  if(this.at("elif")){
+    orelse = [this.parseIf()];
+  } else if(this.at("else")){
+    this.next();
+    this.expect(":", 'Add a ":" right after "else".');
+    orelse = this.parseBlock('this "else"');
+  }
+  return {type:"if", cond:cond, body:body, orelse:orelse, line:tk.line};
+};
+
+Parser.prototype.parseExpr = function(){ return this.parseOr(); };
+Parser.prototype.parseOr = function(){
+  let l = this.parseAnd();
+  while(this.at("or")){ const line = this.next().line; l = {type:"or", l:l, r:this.parseAnd(), line:line}; }
+  return l;
+};
+Parser.prototype.parseAnd = function(){
+  let l = this.parseNot();
+  while(this.at("and")){ const line = this.next().line; l = {type:"and", l:l, r:this.parseNot(), line:line}; }
+  return l;
+};
+Parser.prototype.parseNot = function(){
+  if(this.at("not")){ const line = this.next().line; return {type:"not", e:this.parseNot(), line:line}; }
+  return this.parseAtom();
+};
+Parser.prototype.parseAtom = function(){
+  if(this.at("(")){
+    this.next();
+    const e = this.parseExpr();
+    this.expect(")", 'Missing a ")".');
+    return e;
+  }
+  if(this.at("NAME")) return this.parseCall();
+  throw new KarelError("Expected a question here, like front_is_clear().", this.peek().line);
+};
+Parser.prototype.parseCall = function(){
+  const n = this.next();
+  this.expect("(", 'Write it as '+n.v+'() — commands always need parentheses.');
+  this.expect(")", "Karel's commands don't take anything in the parentheses.");
+  return {type:"call", name:n.v, line:n.line};
+};
+
+/* ============================================================
+   Resolve pass — catch unknown / misused names before running
+   ============================================================ */
+function resolve(prog){
+  function checkCond(e){
+    if(e.type === "not") return checkCond(e.e);
+    if(e.type === "and" || e.type === "or"){ checkCond(e.l); checkCond(e.r); return; }
+    const n = e.name;
+    if(PREDS[n]) return;
+    if(ACTIONS[n]) throw new KarelError(n+"() is an action, not a question — it can't go in an if or while.", e.line);
+    if(prog.defs[n]) throw new KarelError(n+"() is a command you taught Karel; it can't answer a yes/no question.", e.line);
+    throw new KarelError("Karel doesn't know how to answer "+n+"().", e.line);
+  }
+  function checkStmts(stmts){
+    stmts.forEach(function(s){
+      if(s.type === "call_stmt"){
+        const n = s.call.name;
+        if(ACTIONS[n]) return;
+        if(prog.defs[n]) return;
+        if(PREDS[n]) throw new KarelError(n+"() asks a yes/no question — use it inside an if or while.", s.line);
+        throw new KarelError("Karel doesn't know how to "+n+"().", s.line);
+      }
+      if(s.type === "if"){ checkCond(s.cond); checkStmts(s.body); if(s.orelse) checkStmts(s.orelse); }
+      if(s.type === "while"){ checkCond(s.cond); checkStmts(s.body); }
+    });
+  }
+  Object.keys(prog.defs).forEach(function(k){ checkStmts(prog.defs[k].body); });
+  checkStmts(prog.body);
+  return prog;
+}
+
+function compile(src){
+  const prog = resolve(new Parser(tokenize(src)).parseProgram());
+  const entry = prog.defs.main ? prog.defs.main.body : prog.body;
+  if(!entry.length){
+    throw new KarelError("There's nothing to run yet. Put some commands inside def main():.", 1);
+  }
+  return {prog:prog, entry:entry, usedMain: !!prog.defs.main};
+}
+
+/* ============================================================
+   Executor — a generator that yields once per step
+   ============================================================ */
+const MAX_STEPS = 200000;
+const MAX_DEPTH = 150;
+
+function makeRunner(compiled, w){
+  const prog = compiled.prog;
+  let steps = 0;
+
+  function bump(line){
+    steps++;
+    if(steps > MAX_STEPS){
+      throw new KarelError("Karel is still going after "+MAX_STEPS.toLocaleString()+" steps. Check the while loop — its condition may never become false.", line);
+    }
+  }
+
+  function evalCond(e){
+    if(e.type === "not") return !evalCond(e.e);
+    if(e.type === "and") return evalCond(e.l) && evalCond(e.r);
+    if(e.type === "or")  return evalCond(e.l) || evalCond(e.r);
+    return PREDS[e.name](w);
+  }
+
+  function* doCall(call, depth){
+    const name = call.name;
+    if(ACTIONS[name]){
+      bump(call.line);
+      ACTIONS[name](w, call.line);
+      yield {line: call.line};
+      return;
+    }
+    const d = prog.defs[name];
+    if(depth > MAX_DEPTH){
+      throw new KarelError(name+"() keeps calling itself. Karel gave up after "+MAX_DEPTH+" nested calls.", call.line);
+    }
+    bump(call.line);
+    yield {line: call.line};
+    yield* execBlock(d.body, depth+1);
+  }
+
+  function* execStmt(s, depth){
+    if(s.type === "pass"){ bump(s.line); yield {line:s.line}; return; }
+    if(s.type === "call_stmt"){ yield* doCall(s.call, depth); return; }
+    if(s.type === "if"){
+      bump(s.line);
+      yield {line:s.line};
+      if(evalCond(s.cond)) yield* execBlock(s.body, depth);
+      else if(s.orelse)    yield* execBlock(s.orelse, depth);
+      return;
+    }
+    if(s.type === "while"){
+      for(;;){
+        bump(s.line);
+        yield {line:s.line};
+        if(!evalCond(s.cond)) return;
+        yield* execBlock(s.body, depth);
+      }
+    }
+  }
+
+  function* execBlock(stmts, depth){
+    for(let i=0;i<stmts.length;i++) yield* execStmt(stmts[i], depth);
+  }
+
+  return execBlock(compiled.entry, 0);
+}
+
+/* ============================================================
+   Preset worlds
+   ============================================================ */
+function serpentineMaze(){
+  // corridor snaking west<->east up the world, open end alternating
+  const walls = [];
+  for(let y=1;y<=7;y++){
+    const openAt = (y % 2 === 1) ? 8 : 1;      // gap in the ceiling of row y
+    for(let x=1;x<=8;x++) if(x !== openAt) walls.push([x,y,"N"]);
+  }
+  return walls;
+}
+function staircaseWalls(){
+  const walls = [];
+  for(let i=1;i<=7;i++){ walls.push([i,i,"E"]); walls.push([i+1,i,"N"]); }
+  return walls;
+}
+function rowBeepers(y, x1, x2, n){
+  const b = {};
+  for(let x=x1;x<=x2;x++) b[x+","+y] = n;
+  return b;
+}
+
+// A winding 6x6 maze: every cell reachable, shortest route 24 moves.
+const MAZE6 = [[1,1,"E"],[1,2,"N"],[1,5,"E"],[2,1,"N"],[2,2,"N"],[2,4,"E"],[2,5,"N"],
+  [3,2,"N"],[3,3,"N"],[3,3,"E"],[3,5,"N"],[3,5,"E"],[4,2,"N"],[4,4,"N"],[4,4,"E"],
+  [5,2,"N"],[5,3,"N"],[5,4,"N"],[5,6,"E"],[6,3,"N"]];
+
+const PRESETS = [
+  {group:"Empty worlds", items:[
+    {id:"1x1",   name:"1 × 1",              spec:{cols:1,  rows:1,  karel:[1,1,0]}},
+    {id:"2x2",   name:"2 × 2",              spec:{cols:2,  rows:2,  karel:[1,1,0]}},
+    {id:"4x6",   name:"4 × 6",              spec:{cols:4,  rows:6,  karel:[1,1,0]}},
+    {id:"1x8",   name:"1 × 8 (one column)", spec:{cols:1,  rows:8,  karel:[1,1,1]}},
+    {id:"8x1",   name:"8 × 1 (one row)",    spec:{cols:8,  rows:1,  karel:[1,1,0]}},
+    {id:"7x7",   name:"7 × 7",              spec:{cols:7,  rows:7,  karel:[1,1,0]}},
+    {id:"7x9",   name:"7 × 9",              spec:{cols:7,  rows:9,  karel:[1,1,0]}},
+    {id:"8x8",   name:"8 × 8",              spec:{cols:8,  rows:8,  karel:[1,1,0]}},
+    {id:"9x7",   name:"9 × 7",              spec:{cols:9,  rows:7,  karel:[1,1,0]}},
+    {id:"9x9",   name:"9 × 9",              spec:{cols:9,  rows:9,  karel:[1,1,0]}},
+    {id:"10x10", name:"10 × 10",            spec:{cols:10, rows:10, karel:[1,1,0]}},
+    {id:"12x8",  name:"12 × 8",             spec:{cols:12, rows:8,  karel:[1,1,0]}},
+    {id:"12x12", name:"12 × 12",            spec:{cols:12, rows:12, karel:[1,1,0]}}
+  ]},
+  {group:"Exercises", items:[
+    {id:"pile", name:"Beeper pile", spec:{cols:8, rows:8, karel:[1,1,0],
+      beepers:{"4,1":6}}},
+    {id:"stairs", name:"Staircase", spec:{cols:8, rows:8, karel:[1,1,0],
+      walls:staircaseWalls()}},
+    {id:"corridor", name:"Corridor", spec:{cols:8, rows:8, karel:[1,1,0],
+      beepers:{"1,8":1}, walls:serpentineMaze()}},
+    {id:"maze", name:"Maze", spec:{cols:6, rows:6, karel:[1,1,0],
+      beepers:{"6,6":1}, walls:MAZE6}},
+    {id:"harvest", name:"Harvest field", spec:{cols:8, rows:8, karel:[1,2,0],
+      beepers:Object.assign(rowBeepers(2,1,8,1), rowBeepers(3,1,8,1))}}
+  ]}
+];
+
+function findPreset(id){
+  for(const g of PRESETS) for(const it of g.items) if(it.id === id) return it;
+  return null;
+}
+
+/* ============================================================
+   Renderer
+   ============================================================ */
+const ML = 28, MT = 8, MR = 8, MB = 26;
+const CELL_MIN = 20, CELL_MAX = 64, STAGE = 560;
+
+function cellSize(w){
+  const fit = Math.min(STAGE / w.cols, STAGE / w.rows);
+  return Math.max(CELL_MIN, Math.min(CELL_MAX, Math.floor(fit)));
+}
+
+function esc(s){ return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
+
+// Traced from the reference sprites. Drawn facing east in a 100-unit box centred
+// on (50,50); the other three headings are this same path rotated, which is what
+// the four reference images turned out to be.
+// The body and the screen are one compound path with fill-rule="evenodd", so the
+// screen is a genuine hole — whatever is underneath Karel shows through it.
+const KAREL_SPRITE =
+  '<g stroke="#000" stroke-width="3.5" stroke-linejoin="miter" stroke-miterlimit="4" stroke-linecap="butt">' +
+    '<path d="M31 8 H72 L84 21 V79 H40 L31 70 Z M44 19 H69 V53 H44 Z" fill="#fff" fill-rule="evenodd"/>' +
+    '<path d="M55 67 H68" fill="none"/>' +
+  '</g>' +
+  '<path d="M15 53 H32 V62 H24 V73 H15 Z" fill="#000"/>' +
+  '<path d="M55 79 H65 V84 H75 V93 H55 Z" fill="#000"/>';
+const SPRITE_EXTENT = 87;   // tallest dimension of the traced artwork
+
+function renderWorld(w, opts){
+  opts = opts || {};
+  const cell = cellSize(w);
+  const gw = w.cols * cell, gh = w.rows * cell;
+  const W = ML + gw + MR, H = MT + gh + MB;
+  const px = function(x){ return ML + (x-1)*cell; };
+  const py = function(y){ return MT + (w.rows - y)*cell; };
+  const cx = function(x){ return px(x) + cell/2; };
+  const cy = function(y){ return py(y) + cell/2; };
+  const labelSize = Math.max(9, Math.min(13, Math.round(cell*0.3)));
+
+  const out = [];
+  out.push('<svg width="'+W+'" height="'+H+'" viewBox="0 0 '+W+' '+H+'" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Karel world, '+w.cols+' by '+w.rows+'">');
+
+  // corner markers
+  const arm = Math.max(3, Math.round(cell*0.16));
+  out.push('<g stroke="#2f2fd0" stroke-width="'+Math.max(1, Math.round(cell*0.045))+'">');
+  for(let x=1;x<=w.cols;x++){
+    for(let y=1;y<=w.rows;y++){
+      const a = cx(x), b = cy(y);
+      out.push('<path d="M'+(a-arm)+' '+b+' H'+(a+arm)+' M'+a+' '+(b-arm)+' V'+(b+arm)+'"/>');
+    }
+  }
+  out.push('</g>');
+
+  // beepers
+  for(const key in w.beepers){
+    const n = w.beepers[key];
+    if(!n) continue;
+    const parts = key.split(","), bx = +parts[0], by = +parts[1];
+    if(!inBounds(w,bx,by)) continue;
+    const a = cx(bx), b = cy(by), r = cell*0.30;
+    out.push('<path d="M'+a+' '+(b-r)+' L'+(a+r)+' '+b+' L'+a+' '+(b+r)+' L'+(a-r)+' '+b+' Z" fill="#26bcfa" stroke="#0f3d52" stroke-width="'+Math.max(1,cell*0.035)+'"/>');
+    if(n > 1 && cell >= 26){
+      out.push('<text x="'+a+'" y="'+(b + cell*0.115)+'" text-anchor="middle" font-family="ui-monospace, Menlo, monospace" font-size="'+Math.round(cell*0.32)+'" fill="#000">'+n+'</text>');
+    }
+  }
+
+  // karel
+  const k = w.karel;
+  if(inBounds(w,k.x,k.y)){
+    const s = (cell*0.9)/SPRITE_EXTENT;
+    const rot = [0,-90,180,90][k.h];
+    out.push('<g transform="translate('+cx(k.x)+','+cy(k.y)+') scale('+s+') rotate('+rot+') translate(-50,-50)">'+KAREL_SPRITE+'</g>');
+  }
+
+  // interior walls
+  const wsw = Math.max(3, Math.round(cell*0.11));
+  const blocked = opts.flashEdge;
+  out.push('<g stroke="#000" stroke-width="'+wsw+'" stroke-linecap="square">');
+  for(const key in w.walls){
+    const p = key.split(","), wx = +p[0], wy = +p[1], side = p[2];
+    if(side === "N"){
+      out.push('<path d="M'+px(wx)+' '+py(wy)+' H'+(px(wx)+cell)+'"/>');
+    } else {
+      out.push('<path d="M'+(px(wx)+cell)+' '+py(wy)+' V'+(py(wy)+cell)+'"/>');
+    }
+  }
+  out.push('</g>');
+
+  // flash the edge Karel just hit
+  if(blocked){
+    const bx = blocked.x, by = blocked.y, h = blocked.h;
+    let d;
+    if(h === 1)      d = 'M'+px(bx)+' '+py(by)+' H'+(px(bx)+cell);
+    else if(h === 3) d = 'M'+px(bx)+' '+(py(by)+cell)+' H'+(px(bx)+cell);
+    else if(h === 0) d = 'M'+(px(bx)+cell)+' '+py(by)+' V'+(py(by)+cell);
+    else             d = 'M'+px(bx)+' '+py(by)+' V'+(py(by)+cell);
+    out.push('<path d="'+d+'" stroke="#d32f2f" stroke-width="'+(wsw+2)+'" stroke-linecap="square"/>');
+  }
+
+  // boundary
+  out.push('<rect x="'+ML+'" y="'+MT+'" width="'+gw+'" height="'+gh+'" fill="none" stroke="#000" stroke-width="3"/>');
+
+  // axis labels
+  out.push('<g font-family="ui-monospace, Menlo, monospace" font-size="'+labelSize+'" fill="#000">');
+  for(let y=1;y<=w.rows;y++){
+    out.push('<text x="'+(ML-8)+'" y="'+(cy(y)+labelSize*0.36)+'" text-anchor="end">'+y+'</text>');
+  }
+  for(let x=1;x<=w.cols;x++){
+    out.push('<text x="'+cx(x)+'" y="'+(MT+gh+labelSize+5)+'" text-anchor="middle">'+x+'</text>');
+  }
+  out.push('</g>');
+
+  out.push('</svg>');
+  return out.join("");
+}
+
+function describeWorld(w){
+  const k = w.karel;
+  const lines = [];
+  lines.push("World: "+w.cols+" column"+(w.cols===1?"":"s")+" × "+w.rows+" row"+(w.rows===1?"":"s")+".");
+  lines.push("Karel is at column "+k.x+", row "+k.y+", facing "+DIRNAME[k.h]+".");
+  const here = beeperCount(w,k.x,k.y);
+  lines.push(here ? "Karel is standing on "+here+" beeper"+(here===1?"":"s")+"." : "Karel is standing on an empty corner.");
+  lines.push("Karel's bag holds unlimited beepers.");
+
+  const bk = Object.keys(w.beepers).filter(function(key){ return w.beepers[key] > 0; });
+  if(!bk.length){ lines.push("Beepers in the world: none."); }
+  else {
+    bk.sort(function(a,b){
+      const A = a.split(",").map(Number), B = b.split(",").map(Number);
+      return A[1] - B[1] || A[0] - B[0];
+    });
+    let total = 0;
+    const bits = bk.map(function(key){
+      const p = key.split(",");
+      total += w.beepers[key];
+      return "("+p[0]+", "+p[1]+")×"+w.beepers[key];
+    });
+    lines.push("Beepers in the world: "+total+" on "+bk.length+" corner"+(bk.length===1?"":"s")+" — "+bits.join(", ")+".");
+  }
+
+  const wk = Object.keys(w.walls);
+  if(!wk.length){ lines.push("Interior walls: none — only the edges of the world."); }
+  else { lines.push("Interior walls: "+wk.length+" wall segment"+(wk.length===1?"":"s")+"."); }
+
+  const dirs = [];
+  ["front","left","right","back"].forEach(function(side){
+    if(PREDS[side+"_is_clear"](w)) dirs.push(side);
+  });
+  lines.push(dirs.length ? "Clear from here: "+dirs.join(", ")+"." : "Karel is blocked on all four sides.");
+  return lines.join("\n");
+}
+
+/* ============================================================
+   Syntax highlighting overlay
+   ============================================================ */
+const HL_RE = /(#.*)|\b(def)\b|\b(if|elif|else|while|not|and|or|pass)\b/g;
+
+function highlightLine(line){
+  let out = "", last = 0, m;
+  HL_RE.lastIndex = 0;
+  while((m = HL_RE.exec(line)) !== null){
+    out += esc(line.slice(last, m.index));
+    if(m[1])      out += '<span class="cm">'+esc(m[1])+'</span>';
+    else if(m[2]) out += '<span class="df">'+esc(m[2])+'</span>';
+    else          out += '<span class="kw">'+esc(m[3])+'</span>';
+    last = m.index + m[0].length;
+  }
+  out += esc(line.slice(last));
+  return out || "&#8203;";
+}
+
+/* ============================================================
+   App
+   ============================================================ */
+const DEFAULT_CODE = [
+  "from karel.stanfordkarel import *",
+  "",
+  "",
+  "def main():",
+  "    # your code here...",
+  "    while front_is_clear():",
+  "        move()",
+  ""
+].join("\n");
+
+const DELAYS = [700, 500, 360, 260, 190, 130, 90, 60, 34, 14, 0];
+const SPEED_WORDS = ["slowest","","slow","","","medium","","fast","","","instant"];
+
+const el = {
+  code: document.getElementById("code"),
+  hl: document.getElementById("hl"),
+  host: document.getElementById("svgHost"),
+  status: document.getElementById("status"),
+  sel: document.getElementById("worldSel"),
+  run: document.getElementById("btnRun"),
+  step: document.getElementById("btnStep"),
+  pause: document.getElementById("btnPause"),
+  reset: document.getElementById("btnReset"),
+  desc: document.getElementById("btnDesc"),
+  textdesc: document.getElementById("textdesc"),
+  speed: document.getElementById("speed"),
+  speedVal: document.getElementById("speedVal")
+};
+
+const app = {
+  presetId: "8x8",
+  base: null,        // pristine world for current preset
+  world: null,
+  runner: null,
+  state: "idle",     // idle | running | paused | finished | error
+  timer: null,
+  activeLine: 0,
+  badLine: 0,
+  flashEdge: null,
+  showDesc: false
+};
+
+/* ---------- world select ---------- */
+PRESETS.forEach(function(g){
+  const og = document.createElement("optgroup");
+  og.label = g.group;
+  g.items.forEach(function(it){
+    const o = document.createElement("option");
+    o.value = it.id; o.textContent = it.name;
+    og.appendChild(o);
+  });
+  el.sel.appendChild(og);
+});
+el.sel.value = app.presetId;
+
+function loadPreset(id){
+  const p = findPreset(id);
+  app.presetId = id;
+  app.base = makeWorld(p.spec);
+  hardReset("Loaded "+p.name+".");
+}
+
+function hardReset(msg){
+  stopTimer();
+  app.world = cloneWorld(app.base);
+  app.runner = null;
+  app.state = "idle";
+  app.activeLine = 0;
+  app.badLine = 0;
+  app.flashEdge = null;
+  setStatus(msg || "", "");
+  paint();
+  syncButtons();
+}
+
+/* ---------- painting ---------- */
+function paint(){
+  el.host.innerHTML = renderWorld(app.world, {flashEdge: app.flashEdge});
+  if(app.showDesc) el.textdesc.textContent = describeWorld(app.world);
+  paintCode();
+}
+
+function paintCode(){
+  const lines = el.code.value.split("\n");
+  const rows = lines.map(function(ln, i){
+    const n = i + 1;
+    let cls = "row";
+    if(n === app.badLine) cls += " badline";
+    else if(n === app.activeLine) cls += " active";
+    return '<span class="'+cls+'">'+highlightLine(ln)+"</span>";
+  });
+  el.hl.innerHTML = rows.join("");
+  el.hl.scrollTop = el.code.scrollTop;
+  el.hl.scrollLeft = el.code.scrollLeft;
+}
+
+function setStatus(msg, kind){
+  el.status.textContent = msg;
+  el.status.className = kind || "";
+}
+
+function syncButtons(){
+  const running = app.state === "running";
+  el.run.disabled = running;
+  el.step.disabled = running;
+  el.pause.disabled = !running;
+  el.run.textContent = (app.state === "paused") ? "▶ Continue" : "▶ Run Program";
+}
+
+/* ---------- run control ---------- */
+function stopTimer(){
+  if(app.timer !== null){ clearTimeout(app.timer); app.timer = null; }
+}
+
+function ensureRunner(){
+  if(app.runner) return true;
+  app.badLine = 0;
+  app.flashEdge = null;
+  try {
+    const compiled = compile(el.code.value);
+    app.world = cloneWorld(app.base);
+    app.runner = makeRunner(compiled, app.world);
+    if(!compiled.usedMain){
+      setStatus("No def main() found — running the commands at the left margin, top to bottom.", "");
+    } else {
+      setStatus("", "");
+    }
+    return true;
+  } catch(e){
+    if(e instanceof KarelError) reportError(e);
+    else reportError(new KarelError("Something went wrong: "+e.message, 0));
+    return false;
+  }
+}
+
+function reportError(e){
+  stopTimer();
+  app.state = "error";
+  app.activeLine = 0;
+  app.badLine = e.line || 0;
+  setStatus(e.line ? "Line "+e.line+": "+e.message : e.message, "err");
+  paint();
+  syncButtons();
+}
+
+// returns true if a step was taken and there may be more
+function advance(){
+  let r;
+  try {
+    r = app.runner.next();
+  } catch(e){
+    if(e instanceof KarelError){
+      if(/tried to move/.test(e.message)){
+        app.flashEdge = {x: app.world.karel.x, y: app.world.karel.y, h: app.world.karel.h};
+      }
+      reportError(e);
+    } else {
+      reportError(new KarelError("Something went wrong: "+e.message, 0));
+    }
+    return false;
+  }
+  if(r.done){
+    stopTimer();
+    app.state = "finished";
+    app.activeLine = 0;
+    setStatus("Program finished.", "ok");
+    paint();
+    syncButtons();
+    return false;
+  }
+  app.activeLine = r.value.line;
+  return true;
+}
+
+function tick(){
+  if(app.state !== "running") return;
+  const d = DELAYS[+el.speed.value];
+  if(d === 0){
+    let n = 0;
+    while(app.state === "running" && n < 400){
+      if(!advance()) return;
+      n++;
+    }
+    paint();
+    app.timer = setTimeout(tick, 0);
+  } else {
+    if(!advance()) return;
+    paint();
+    app.timer = setTimeout(tick, d);
+  }
+}
+
+el.run.addEventListener("click", function(){
+  if(app.state === "error" || app.state === "finished"){
+    if(app.state === "finished" || app.badLine) app.runner = null;
+  }
+  if(!ensureRunner()){ return; }
+  app.state = "running";
+  syncButtons();
+  paint();
+  tick();
+});
+
+el.step.addEventListener("click", function(){
+  if(app.state === "finished" || app.state === "error") app.runner = null;
+  if(!ensureRunner()) return;
+  app.state = "paused";
+  if(advance()){ setStatus("Paused at line "+app.activeLine+".", ""); paint(); }
+  syncButtons();
+});
+
+el.pause.addEventListener("click", function(){
+  stopTimer();
+  app.state = "paused";
+  setStatus("Paused at line "+app.activeLine+".", "");
+  syncButtons();
+  paint();
+});
+
+el.reset.addEventListener("click", function(){ hardReset("World reset."); });
+
+el.sel.addEventListener("change", function(){ loadPreset(el.sel.value); });
+
+el.speed.addEventListener("input", function(){
+  const i = +el.speed.value;
+  el.speedVal.textContent = SPEED_WORDS[i] || "";
+});
+
+el.desc.addEventListener("click", function(){
+  app.showDesc = !app.showDesc;
+  el.textdesc.classList.toggle("on", app.showDesc);
+  el.desc.textContent = app.showDesc ? "Hide Text Descriptions" : "Show Text Descriptions";
+  if(app.showDesc) el.textdesc.textContent = describeWorld(app.world);
+});
+
+/* ---------- editor behaviour ---------- */
+el.code.addEventListener("input", function(){
+  if(app.runner || app.state === "error" || app.state === "finished"){
+    hardReset("Program changed — world reset.");
+  } else {
+    paintCode();
+  }
+});
+el.code.addEventListener("scroll", function(){
+  el.hl.scrollTop = el.code.scrollTop;
+  el.hl.scrollLeft = el.code.scrollLeft;
+});
+el.code.addEventListener("keydown", function(ev){
+  if(ev.key === "Tab"){
+    ev.preventDefault();
+    if(ev.shiftKey) dedentLine();
+    else insertAtCursor("    ");
+  } else if(ev.key === "Backspace" && el.code.selectionStart === el.code.selectionEnd){
+    // on a line that is nothing but indentation, eat back to the previous stop
+    const v = el.code.value, pos = el.code.selectionStart;
+    const lineStart = v.lastIndexOf("\n", pos-1) + 1;
+    const before = v.slice(lineStart, pos);
+    if(before.length && /^ +$/.test(before)){
+      ev.preventDefault();
+      const back = ((before.length - 1) % 4) + 1;
+      replaceRange("", pos - back, pos);
+    }
+  } else if(ev.key === "Enter"){
+    ev.preventDefault();
+    const v = el.code.value, pos = el.code.selectionStart;
+    const lineStart = v.lastIndexOf("\n", pos-1) + 1;
+    const cur = v.slice(lineStart, pos);
+    let indent = (cur.match(/^ */) || [""])[0];
+    if(/:\s*$/.test(cur.replace(/#.*$/,""))) indent += "    ";
+    insertAtCursor("\n" + indent);
+  } else if((ev.metaKey || ev.ctrlKey) && ev.key === "Enter"){
+    ev.preventDefault();
+    el.run.click();
+  }
+});
+function insertAtCursor(text){
+  const ta = el.code, s = ta.selectionStart, e = ta.selectionEnd;
+  ta.setRangeText(text, s, e, "end");
+  ta.dispatchEvent(new Event("input"));
+}
+function replaceRange(text, from, to){
+  el.code.setRangeText(text, from, to, "end");
+  el.code.dispatchEvent(new Event("input"));
+}
+// Shift-Tab: strip up to one indent step from the start of the current line
+function dedentLine(){
+  const v = el.code.value, pos = el.code.selectionStart;
+  const lineStart = v.lastIndexOf("\n", pos-1) + 1;
+  const indent = (v.slice(lineStart).match(/^ */) || [""])[0].length;
+  if(!indent) return;
+  const cut = ((indent - 1) % 4) + 1;
+  const caret = pos;
+  el.code.setRangeText("", lineStart, lineStart + cut, "end");
+  const back = Math.max(lineStart, caret - cut);
+  el.code.setSelectionRange(back, back);
+  el.code.dispatchEvent(new Event("input"));
+}
+
+/* ---------- boot ---------- */
+el.code.value = DEFAULT_CODE;
+el.speedVal.textContent = SPEED_WORDS[+el.speed.value];
+loadPreset("8x8");
+setStatus("", "");
+</script>
+</body>
+</html>
