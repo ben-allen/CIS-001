@@ -608,6 +608,8 @@ const PRESETS = [
     {id:"12x12", name:"12 × 12",            spec:{cols:12, rows:12, karel:[1,1,0]}}
   ]},
   {group:"Exercises", items:[
+    {id:"around", name:"Around the wall", spec:{cols:5, rows:3, karel:[1,1,0],
+      beepers:{"5,1":1}, walls:[[3,1,"E"]]}},
     {id:"pile", name:"Beeper pile", spec:{cols:8, rows:8, karel:[1,1,0],
       beepers:{"4,1":6}}},
     {id:"stairs", name:"Staircase", spec:{cols:8, rows:8, karel:[1,1,0],
