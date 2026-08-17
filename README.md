@@ -11,7 +11,7 @@ Canvas will be used exclusively as a submission portal for completed assignments
 - [Syllabus](syllabus.md)
 - [Slides](slides/)
 
-- [Karel the Robot (online exercise)](karel.html) — used during the first few weeks of class
+- [Karel the Robot (online exercise)](https://ben-allen.github.io/CIS-001/karel.html) — used during the first few weeks of class
 
 ## Status
 
