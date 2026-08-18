@@ -43,7 +43,7 @@
     position:absolute;inset:0;width:100%;height:100%;resize:none;outline:none;
     background:transparent;color:transparent;caret-color:#000;overflow:auto;white-space:pre;
   }
-  .editor textarea::selection{background:#b9d5f6}
+  .editor textarea::selection{background:#b9d5f6;color:#000}
   .editor:focus-within{outline:2px solid #1a5fb4;outline-offset:1px}
   .kw{color:var(--kw)} .df{color:var(--def)} .cm{color:var(--com)}
 
@@ -136,10 +136,6 @@
         <code>back_is_blocked()</code>
         <code>beepers_present()</code>
         <code>no_beepers_present()</code>
-        <code>facing_north()</code>
-        <code>facing_south()</code>
-        <code>facing_east()</code>
-        <code>facing_west()</code>
       </div>
       <p>Also: <code>def name():</code> to teach Karel a new command, <code>if</code> / <code>elif</code> /
       <code>else</code>, <code>while</code>, and <code>not</code> / <code>and</code> / <code>or</code>.</p>
@@ -259,14 +255,6 @@ const PREDS = {
   back_is_blocked:  function(w){ return  blockedFrom(w,w.karel.x,w.karel.y,backOf(w.karel.h)); },
   beepers_present:    function(w){ return beeperCount(w,w.karel.x,w.karel.y) > 0; },
   no_beepers_present: function(w){ return beeperCount(w,w.karel.x,w.karel.y) === 0; },
-  facing_east:  function(w){ return w.karel.h === 0; },
-  facing_north: function(w){ return w.karel.h === 1; },
-  facing_west:  function(w){ return w.karel.h === 2; },
-  facing_south: function(w){ return w.karel.h === 3; },
-  not_facing_east:  function(w){ return w.karel.h !== 0; },
-  not_facing_north: function(w){ return w.karel.h !== 1; },
-  not_facing_west:  function(w){ return w.karel.h !== 2; },
-  not_facing_south: function(w){ return w.karel.h !== 3; }
 };
 
 /* ============================================================
