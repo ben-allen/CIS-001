@@ -31,3 +31,5 @@ Exercise 3: Write a program that successfully picks up all the beepers on both t
 Exercise 4: Write a program that successfully removes all beepers from any board I run it on. 
 * I may test it on boards you don't have access to!
 
+
+MAKE SURE TO PRESERVE THE INDENTATION, since that's a meaningful part of the program logic. 
