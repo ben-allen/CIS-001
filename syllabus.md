@@ -14,23 +14,25 @@ Credit hours: 3
 
 Class meets Mondays and Wednesdays, 11:00 AM to 12:55 PM
 
-2:00 – 3:50 PM lecture
 
-4:00 – 5:15 PM lab
+NOTE FOR STUDENTS IN THE ASYNCHRONOUS ONLINE SECTION:
+
+I will, starting the second week, be simulcasting the class sessions over Zoom, and saving them so that you can review them later. Details to come.
+
 
 - **Note**: This class follows the “Berkeley time” convention established at Cal – classes start 10 minutes after their listed time. As such, lectures will start at **11:10 AM**
 
-This class is officially a face-to-face class. However, the class will also be simulcast over zoom, there will be recorded videos of the lectures, and there will be a discord channel for in-class discussion. I
+This class is officially a face-to-face class. However, the class will also be simulcast over zoom, there will be recorded videos of the lectures, and there will be a discord channel for in-class discussion. 
 
 **Class time is structured as follows:**
 
-- Lecture time will typically be devoted to introducing new material and doing short exercises based on that material
+- Mondays will largely be devoted to introducing new material and doing short exercises based on that material
 
-- Lab time will typically be devoted to working on relatively larger assignments which allow you to demonstrate your ability to write complex, interesting programs.
+- Wednesdays will have significant lab time, typically be devoted to working on relatively larger assignments 
 
 **Office**: Room 516
 
-**Office hours (subject to revision):** 1:00 PM to 2:00 PM Monday through Thursday
+**Office hours (subject to revision):** 1:30 PM to 2:30 PM Monday through Thursday
 
 If you can’t come in face-to-face during office hours but would like to meet, let me know and we’ll set up a zoom meeting. If you need to meet outside these hours, please send me an email and we can try to work something out.
 
@@ -81,6 +83,8 @@ In this class, we will learn to:
 
 **Discord**
 
+An invite link to the class Discord is available on the Canvas site.
+
 **PLEASE DO NOT SHARE THE DISCORD INVITE WITH ANYONE NOT IN THE CLASS.**
 
 Send me a direct message with your real name when you log in; I will kick and ban anyone who I don’t recognize as a student.
@@ -118,7 +122,7 @@ About of your grade will come from assignments. The other half will come from tw
 
 **Functionality grading and style grading**
 
-Roughly 6*0*% of your grade on each assignment is derived from your program’s *functionality*. If the output of your program in all cases matches the output of my version of the program, you will get full credit for functionality. You will lose points for functionality if I can find input that will make your program crash, produce invalid results, or otherwise fail to work correctly.
+Roughly 60% of your grade on each assignment is derived from your program’s *functionality*. If the output of your program in all cases matches the output of my version of the program, you will get full credit for functionality. You will lose points for functionality if I can find input that will make your program crash, produce invalid results, or otherwise fail to work correctly.
 
 Roughly 40% of your grade comes from your code’s adherence to the *style guide* for the class. As you progress through your career as a programmer, you will find that using good code style makes your programs much, much easier to write, read, debug, and maintain. As such, it is crucial that you write stylistically sound code right from the start.
 
@@ -175,3 +179,6 @@ at which point they become *extremely awful.* I do not recomment using them exte
 Also note that this class isn't about the assignments, it's about the *exercise* you get while working on the assignments. A forklift can lift more weight than you can. However, getting a workout requires lifting things with *your own muscles* instead of with a forklift.
 
 Tongue in cheek note: Someday we may have to win a war against the robots. Getting good at computer science will make you a valuable asset for the human side of that war.
+
+(This is a joke)
+
