@@ -115,6 +115,7 @@
         <span class="val" id="speedVal">medium</span>
       </label>
       <button id="btnDesc">Show Text Descriptions</button>
+      <button id="btnSave">💾 Save</button>
     </div>
 
     <div id="status"></div>
@@ -817,6 +818,7 @@ const el = {
   pause: document.getElementById("btnPause"),
   reset: document.getElementById("btnReset"),
   desc: document.getElementById("btnDesc"),
+  save: document.getElementById("btnSave"),
   textdesc: document.getElementById("textdesc"),
   speed: document.getElementById("speed"),
   speedVal: document.getElementById("speedVal")
@@ -1026,6 +1028,21 @@ el.desc.addEventListener("click", function(){
   el.textdesc.classList.toggle("on", app.showDesc);
   el.desc.textContent = app.showDesc ? "Hide Text Descriptions" : "Show Text Descriptions";
   if(app.showDesc) el.textdesc.textContent = describeWorld(app.world);
+});
+
+/* ---------- save / load ---------- */
+el.save.addEventListener("click", function(){
+  const blob = new Blob([el.code.value], {type: "text/plain"});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  const stamp = new Date().toISOString().slice(0,10);
+  a.href = url;
+  a.download = "karel-program-" + stamp + ".txt";
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  setStatus("Saved to your downloads.", "ok");
 });
 
 /* ---------- editor behaviour ---------- */
