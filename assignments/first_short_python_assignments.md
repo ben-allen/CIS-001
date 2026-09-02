@@ -1,10 +1,5 @@
 # Quick Practice: Variables, Statements, and Functions
 
-**Estimated time:** 45–60 minutes total
-**Format:** Each problem is independent and short — a few minutes each, not a big project. Do them in order; later ones build lightly on earlier ones.
-
-*Several of these exercises are adapted from* Think Python, 3rd Edition *by Allen B. Downey (allendowney.github.io/ThinkPython), used and adapted under a [CC BY-NC-SA 4.0 license](https://creativecommons.org/licenses/by-nc-sa/4.0/). This handout is shared under the same license.*
-
 ---
 
 ## Part A: Variables, Expressions, and Statements
