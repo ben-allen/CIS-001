@@ -24,8 +24,8 @@ Z -> C
 So the word `"CAT"` becomes `"FDW"`.
 
 To decode a message, you just shift backwards by the same amount. This
-assignment asks you to build an encoder, a decoder, and (if you're up for it)
-a way to crack a coded message *without* knowing the shift.
+assignment asks you to build an encoder, a decoder, and a way to crack a coded
+message *without* knowing the shift.
 
 This is the same shape as `bottle_verse` from the short assignment: you'll
 write a small helper function that handles *one* piece (one letter), and a
