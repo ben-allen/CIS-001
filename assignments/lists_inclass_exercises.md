@@ -83,8 +83,8 @@ print(nums)
 **7.** This code crashes. Explain why, then fix it.
 
 ```python
-names = ["Ana", "Ben"]
-names = names.append("Cy")
+names = ["Anna", "Bob"]
+names = names.append("Charli")
 print(len(names))
 ```
 
