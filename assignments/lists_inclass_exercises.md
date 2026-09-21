@@ -2,7 +2,6 @@
 
 CIS001 · Think Python, Chapter 9
 
-**Name:** ______________________________ **Partner:** ______________________________
 
 Part 1 is a set of short questions to check that you've got the ideas from today. For the predict-the-output questions, write your answer down before running anything, then check it in Colab. Drawing the arrows helps!
 
