@@ -1,5 +1,6 @@
 # Dictionaries: In-Class Exercises
 
+
 Use Think Python, Chapter 10 as a reference. For the predict-the-output questions, write your answer down before running anything, then run it to check. Drawing the arrows helps!
 
 ## Part 1: Short questions
