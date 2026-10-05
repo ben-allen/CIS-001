@@ -1,8 +1,10 @@
 # Tic-Tac-Toe
 
+[Starter file](https://ben-allen.github.io/CIS-001/assignments/tictactoe_starter.py) 
+
 Over the next two class sessions, you'll build a tic-tac-toe game that two people can play at the keyboard. Along the way you'll practice lists of lists, functions that change a list vs. functions that leave it alone, and docstrings.
 
-You don't have to invent the game from scratch. You'll start from a starter file that already has every function's name and (for most of them) its docstring. This handout walks you through filling in those functions one at a time. Work through them in order: each one builds on the ones before it.
+You don't have to invent the game from scratch. You'll start from a [starter file](https://ben-allen.github.io/CIS-001/assignments/tictactoe_starter.py) that already has every function's name and (for most of them) its docstring. This handout walks you through filling in those functions one at a time. Work through them in order: each one builds on the ones before it.
 
 **What to turn in:** your file `tictactoe.py`. If you're using Colab, remember to go to File -> Download -> Download .py
 
