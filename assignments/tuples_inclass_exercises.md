@@ -4,6 +4,8 @@ These exercises practice the tuple material from Think Python, Chapter 11: makin
 
 Work out every Part 1 question on paper first, *then* check your answers in Colab. When a question says to draw the references, draw the arrows: most of the surprises in this chapter only make sense in the picture.
 
+Note: this assignment are based on [the week 7 slides](https://ben-allen.github.io/CIS-001/slides/cis001_week_7_tuples.pdf). We'll cover the first half of these slides on Monday and the second on Wednesday. If you're working on this on Monday or Tuesday and you get very confused halfway through, either wait until Wednesday, or feel free to look through the latter half of the slides)
+
 ## Part 1: Short questions
 
 **1. Predict the output.**
