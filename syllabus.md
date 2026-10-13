@@ -12,23 +12,20 @@ Classroom: 502
 
 Credit hours: 3
 
+FOR STUDENTS IN THE IN-PERSON SECTION:
 Class meets Mondays and Wednesdays, 11:00 AM to 12:55 PM
 
-
-NOTE FOR STUDENTS IN THE ASYNCHRONOUS ONLINE SECTION:
-
-I will, starting the second week, be simulcasting the class sessions over Zoom, and saving them so that you can review them later. Details to come.
-
-
 - **Note**: This class follows the “Berkeley time” convention established at Cal – classes start 10 minutes after their listed time. As such, lectures will start at **11:10 AM**
-
-This class is officially a face-to-face class. However, the class will also be simulcast over zoom, there will be recorded videos of the lectures, and there will be a discord channel for in-class discussion. 
 
 **Class time is structured as follows:**
 
 - Mondays will largely be devoted to introducing new material and doing short exercises based on that material
 
 - Wednesdays will have significant lab time, typically be devoted to working on relatively larger assignments 
+
+FOR STUDENTS IN THE ASYNCHRONOUS ONLINE SECTION:
+I'll be recording ~2 videos a week on the course materials, using the slide decks I use in the in-person section. I upload these decks to [the slides folder on the class GitHub](https://github.com/ben-allen/CIS-001/tree/main/slides) right before each in-person class section, and will add them to Canvas modules shortly after.
+
 
 **Office**: Room 516
 
@@ -91,7 +88,7 @@ Send me a direct message with your real name when you log in; I will kick and ba
 
 If you do not already have Discord installed on your computer or mobile device, you can get it [here](https://discord.com/download).
 
-The Discord will be open 24/7. Feel free to hang out there to discuss assignments and class material, but please keep discussions in the non-social channels more or less on topic -- it's not helpful to your classmates if the class channels are filled up with talk about videogames, movies, and memes.
+The Discord will be open 24/7. Feel free to hang out there to discuss assignments and class material, but please keep discussions in the non-social channels more or less on topic -- it's not helpful to your classmates if the class channels are filled up with talk about videogames, movies, and memes. I will be *sporadically* available on the Discord; **the quickest way to contact me is generally by email.**
 
 Note: there are a couple of channels available for off-topic conversation with your classmates:
 
@@ -112,23 +109,21 @@ I will provide additional readings over the course of the semester*
 
 Because learning how to program well takes a large amount of practice, there are a relatively large number of assignments in this class. Toward the end of the semester there are fewer programs assigned, but each of these programs is longer.
 
-In addition to programming assignments, we will have some amount of written work on topics related to ethics in computing. Details to come.
-
 In short: please only stay in this class if you are prepared to spend a *lot* of time on the assignments. I have had students tell me that they spend more time on the assignments for this class than for all of their other classes combined. This is by design. Learning to program is hard – it’s something like learning how to play a musical instrument -- and when starting out it is necessary to do a large amount of practice in order to build your intuition about what strategies work and what strategies don’t.
 
-**Grading**
 
-About of your grade will come from assignments. The other half will come from two mid-term exams and one final exam. All of the exams will be *taken on paper*.
+**Grading overview**
+
+I generally despise giving tests; there is a large amount of very good research showing that learners tend not to retain information they learned while cramming for tests. As such, I've provisionally decided this semester to *not* have exams, and to make the entire grade derived from work on assignments. These assignments will be a mixture of short exercises and larger projects; generally the solutions to the short exercises flow directly into the projects -- what look like isolated solutions to contrived problems 
+
 
 **Functionality grading and style grading**
 
-Roughly 60% of your grade on each assignment is derived from your program’s *functionality*. If the output of your program in all cases matches the output of my version of the program, you will get full credit for functionality. You will lose points for functionality if I can find input that will make your program crash, produce invalid results, or otherwise fail to work correctly.
+Roughly 60% of your grade on each programming assignment is derived from your program’s *functionality*. If the output of your program in all cases matches the output of my version of the program, you will get full credit for functionality. You will lose points for functionality if I can find input that will make your program crash, produce invalid results, or otherwise fail to work correctly.
 
 Roughly 40% of your grade comes from your code’s adherence to the *style guide* for the class. As you progress through your career as a programmer, you will find that using good code style makes your programs much, much easier to write, read, debug, and maintain. As such, it is crucial that you write stylistically sound code right from the start.
 
-**Feedback on assignments:**
-
-I will give relatively minimal written feedback on assignments: for more detailed feedback, talk to me during lab or office hours.
+Note: these are *very rough guidelines*, and the ratio for style grading and functionality grading will shift from assignment to assignment. In general, correct style and correct functionality can't be fully separated from each other, since using good code style will make it much easier to write code that works.
 
 **Late policy**
 
@@ -174,11 +169,18 @@ So there are some things LLMs are really really good at, and some things they ar
 
 - In a less-commonly used programming language
 
-at which point they become *extremely awful.* I do not recomment using them extensively in this class. Note that exams will have to be taken without LLM assistance.
+at which point they can become *extremely awful.* 
 
-Also note that this class isn't about the assignments, it's about the *exercise* you get while working on the assignments. A forklift can lift more weight than you can. However, getting a workout requires lifting things with *your own muscles* instead of with a forklift.
+**For my part**: I tend to use LLMs for certain rote/repetitive tasks -- I often use them to correct accessibility-related errors and formatting inconsistencies in slide decks.  
 
-Tongue in cheek note: Someday we may have to win a war against the robots. Getting good at computer science will make you a valuable asset for the human side of that war.
+As far as coding with them: I find them very useful for writing "boilerplate-heavy" code; for example, I "vibe-coded" the graphical user interface of the Karel the Robot tool that's on the class GitHub. Before this semester I used a text-based interface for this tool, because I could never quite find the time to write the JavaScript GUI. I confess, one reason I put it off until I could ask a machine to do it for me is that the part of the program that is the same in the text-based version as in the GUI version -- the code that actually interprets Karel commands -- is inherently interesting, and absolutely has to be 100% correct. On the other hand, the parts about getting (for example) the GUI text box pane to display in exactly the right place is kind of boring. It's not a huge disaster if there's glitches that I haven't noticed, since if they happen you can tell me about them and I can dive into the code to fix them. I tend to avoid LLM code when doing stuff for "production software", i.e. things that a large number of people who I don't personally know might use.
 
-(This is a joke)
+Additionally: if I didn't understand JavaScript and its limitations, I would have had a much harder time with the vibe-coding -- getting good results from automated code generation tools requires being able to clearly and concisely describe the problem, and also describe what's important to get right. Generally when you try to vibe-code when working with concepts you don't already understand, you end up burning a ton of tokens and getting nothing useful back. 
 
+This is to say: LLMs are good at the boring part, which is pretty cool, and they're good at getting things *almost* right, which is sometimes all you need, and they're good if you can describe *exactly* what you want them to do, which requires deep knowledge.
+
+As of 2026 they have not increased programmer productivity for real-world wide-use projects nearly as much as you'd expect, because the process of reviewing LLM-generated code for subtle errors is often as time-consuming as just writing the code directly. And, well, doing this review requires having exactly as much knowledge of computer science and computer engineering as writing the code yourself does. 
+
+This is all to say: probably it's a good idea to learn the underlying concepts instead of just letting LLMs write code for you, because once you start writing programs above a certain level of complexity you will run into massive problems if you don't understand what the LLM generates.
+
+**A really key thing**: 
