@@ -183,4 +183,4 @@ As of 2026 they have not increased programmer productivity for real-world wide-u
 
 This is all to say: probably it's a good idea to learn the underlying concepts instead of just letting LLMs write code for you, because once you start writing programs above a certain level of complexity you will run into massive problems if you don't understand what the LLM generates.
 
-**A really key thing**: 
+## **A really key thing**: If you turn in LLM-generated code that includes programming language constructs that we have not covered in class, please INCLUDE COMMENTS EXPLAINING WHAT THOSE CONSTRUCTS ARE AND HOW THEY WORK, and be prepared to explain in detail how your code works.
