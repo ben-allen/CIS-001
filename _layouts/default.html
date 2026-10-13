@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 
-<!-- A NOTE TO STUDENTS: you can safely ignore this file, and everything else in this directory. It changes the styling of rendered pages from this repository when the page is embedded in a Canvas page. If you're interested, the key parts are what's in the `script` tag in the `head` section, and the `style` tag below that. The `script` tag contains a piece of JavaScript that detects whether the page is being displayed embedded. If it is, it marks the document as 'embedded'. The `style` tag below it contains an instruction to not make a link back to the course GitHub when displaying documents marked as 'embedded'. This link makes sense when you're viewing the page directly on GitHub, because you can use it to go back to the top level of the site. However, the link doesn't make sense in the context of a Canvas page, which is why I've suppressed it when pages are displayed on Canvas.
+<!-- A NOTE TO STUDENTS: you can safely ignore this file, and everything else in this directory. It changes the styling of rendered pages from this repository when the page is embedded in a Canvas page. If you're interested, the key parts are what's in the `script` tag in the `head` section, and the `style` tag below that. The `script` tag contains a piece of JavaScript that detects whether the page is being displayed embedded. If it is, it marks the document as 'embedded'. The `style` tag below it contains an instruction to not make a link back to the course website top page when displaying documents marked as 'embedded'. This link makes sense when you're viewing the page directly on https://ben-allen.github.io/CIS-001/, because you can use it to go back to the top level of the site. However, the link _doesn't_ make sense in the context of a Canvas page, which is why I've suppressed it when pages are displayed on Canvas.
 -->
 
 <html lang="{{ page.lang | default: site.lang | default: "en-US" }}">
@@ -24,7 +24,7 @@
   <body>
     <div class="container-lg px-3 my-5 markdown-body">
       {% if site.title and site.title != page.title %}
-      <h1><a href="{{ "/" | absolute_url }}">{{ site.title }}</a></h1>
+      <h1 class="site-title"><a href="{{ "/" | absolute_url }}">{{ site.title }}</a></h1>
       {% endif %}
 
       {{ content }}
