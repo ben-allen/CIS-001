@@ -1,6 +1,6 @@
 # CIS 001 – Introduction to Computers
 
-Introduction to programming, using Python · Solano Community College · Fall 2026 · Instructor: Ben Allen
+Introduction to Computers· Solano Community College · Fall 2026 · Instructor: Ben Allen
 
 **[Read the syllabus](syllabus.md)** for grading, policies, the textbook, and office hours.
 
@@ -11,10 +11,10 @@ This course runs as two sections. Both use the slides and materials from the cla
 
 ## Using this site
 
-- Course materials are all available on the class [GitHub repository](https://github.com/ben-allen/CIS-001/). As I develop new materials I post them there first and then later mirror them on Canvas, so if the two ever seem to disagree, the version on GitHub is the up-to-date one.
-- Slides go up right before each in-person class, so online students can see the week's slides here before the videos are posted.
+- Course materials are all available on the class [GitHub repository](https://github.com/ben-allen/CIS-001/). As I develop new materials I post them there and mirror them on Canvas -- as such, there will generally be "early-access" materials for future weeks on the GitHub.
+- Slides are posted right before each in-person class, so online students can generally see the week's slides here before the videos are posted.
 - Assignments are turned in on Canvas.
-- You don't need a GitHub account. Slides are PDFs and open right in your browser.
+- You don't need a GitHub account to view the material on the GitHub repo. Slides are PDFs and open right in your browser.
 
 ## Slides, in order
 
