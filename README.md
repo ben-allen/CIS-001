@@ -4,11 +4,9 @@ Introduction to programming, using Python · Solano Community College · Fall 20
 
 **[Read the syllabus](syllabus.md)** for grading, policies, the textbook, and office hours.
 
-## Two sections, one set of materials
-
 This course runs as two sections. Both use the same slides and materials from this site.
 
-- **In person:** Mondays and Wednesdays in Room 502. Class is listed at 11:00 AM but starts at **11:10 AM** ("Berkeley time"). Mondays mostly introduce new material with short exercises; Wednesdays are mostly lab time for larger assignments. [Details](syllabus.md#for-students-in-the-in-person-section)
+- **In person:** Mondays and Wednesdays in Room 502. Class is listed at 11:00 AM, but lecture starts at **11:10 AM** ("Berkeley time"). Mondays mostly introduce new material with short exercises; Wednesdays are mostly lab time for larger assignments. [Details](syllabus.md#for-students-in-the-in-person-section)
 - **Online (asynchronous):** about two videos a week, recorded with the same slides the in-person section uses. Videos are generally recorded and posted on Fridays. [Details](syllabus.md#for-students-in-the-asynchronous-online-section)
 
 ## Using this site
