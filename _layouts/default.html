@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 
-<!-- A NOTE TO STUDENTS: you can safely ignore this file, and everything else in this directory. It changes the styling of rendered pages from this repository when the page is embedded in a Canvas page. If you're interested, the key parts are what's in the `script` tag in the `head` section, and the `style` tag below that. The `script` tag contains a piece of JavaScript that detects whether the page is being displayed embedded. If it is, it marks the document as 'embedded'. The `style` tag below it contains an instruction to not make a link back to the course website top page when displaying documents marked as 'embedded'. This link makes sense when you're viewing the page directly on https://ben-allen.github.io/CIS-001/, because you can use it to go back to the top level of the site. However, the link _doesn't_ make sense in the context of a Canvas page, which is why I've suppressed it when pages are displayed on Canvas.
+<!-- 
+  A NOTE TO STUDENTS: you can safely ignore this file, and everything else in this directory. It changes the styling of rendered pages from this repository when the page is embedded in a Canvas page. Additionally, it makes the links on pages open in a new tab when you click on them from the embedded Canvas version -- this is necessary because browsers often complain about putting an external link in an `iframe`.
 -->
 
 <html lang="{{ page.lang | default: site.lang | default: "en-US" }}">
@@ -8,13 +9,35 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <script>
-      if (window.self !== window.top) {
-        document.documentElement.classList.add('embedded');
-      }
-    </script>
+  <script>
+    if (window.self !== window.top) {
+      document.documentElement.classList.add('embedded');
+      document.addEventListener('DOMContentLoaded', function () {
+        document.querySelectorAll('a[href]').forEach(function (a) {
+          if (a.getAttribute('href').startsWith('#')) return; // keep same-page jumps in the frame
+          if (a.target) return;
+          a.target = '_blank';
+          a.rel = 'noopener';
+        });
+      });
+    }
+  </script>
     <style>
       .embedded .site-title { display: none; }
+      .canvas-only { display: none; }
+      .embedded .canvas-only-title { font-weight: 600; margin-bottom: 0.25rem; }
+      .embedded .canvas-only > :last-child { margin-bottom: 0; }
+      .embedded .canvas-only {
+      display: block;
+      margin: 0 0 1.5rem;
+      padding: 0.75rem 1rem;
+      border-left: 4px solid #0969da;
+      border-radius: 6px;
+      background: #ddf4ff;
+      color: #1f2328;
+      line-height: 1.5;
+    }
+    .embedded .canvas-only a { font-weight: 600; }
     </style>
 
 {% seo %}
@@ -25,6 +48,14 @@
     <div class="container-lg px-3 my-5 markdown-body">
       {% if site.title and site.title != page.title %}
       <h1 class="site-title"><a href="{{ "/" | absolute_url }}">{{ site.title }}</a></h1>
+      {% endif %}
+
+      {% if page.name == "README.md" %}
+
+      <div class="canvas-only" role="note" aria-labelledby="canvas-note-title">
+        <p id="canvas-note-title" class="canvas-only-title">Canvas course navigation</p>
+        <p>You're viewing this inside Canvas. Assignments, slides, and videos are organized week by week under <a href="https://solano.instructure.com/courses/1397547/modules" target="_top"><strong>Modules</strong></a> in the course menu, which is likely the easiest way for you to access course materials.</p>
+      </div>
       {% endif %}
 
       {{ content }}
