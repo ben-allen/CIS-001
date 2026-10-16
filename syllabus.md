@@ -144,7 +144,7 @@ Please carefully read the policies and contact me if something is unclear.
 
 ## Let's talk about LLMs
 
-So there are some things LLMs are really really good at, and some things they're much worse at. They are *very very good* at certain types of student exercises -- anything that there's a large amount of publicly-available code for, which describes most intro programming assignments, including the ones in this class. They get noticeably less reliable when you're doing something that's:
+There are some things LLMs are very good at, and some things they're much worse at. They are *very* good at certain types of student exercises -- anything that there's a large amount of publicly-available code for.  They get noticeably less reliable when you're doing something that's:
 
 - More complicated or more unusual than what's common on the internet
 - In a less-commonly used programming language or library
@@ -152,7 +152,7 @@ So there are some things LLMs are really really good at, and some things they're
 
 And when they fail in these situations, the failures are often *subtle*: code that looks right, runs, and is wrong in a way you won't catch unless you understand it.
 
-**For my part:** I tend to use LLMs for certain rote/repetitive tasks -- I often use them to correct accessibility-related errors and formatting inconsistencies in slide decks. I've also used them for proofreading course materials, like this syllabus.
+**For my part:** I tend to use LLMs for certain rote/repetitive tasks -- I often use them to correct accessibility-related errors and formatting inconsistencies in slide decks. I've also used them for proofreading course materials, like this syllabus. 
 
 As far as coding with them: I find them very useful for writing "boilerplate-heavy" code; for example, I "vibe-coded" the graphical user interface of the Karel the Robot tool that's on the class GitHub. Before this semester I used a text-based interface for this tool, because I could never quite find the time to write the JavaScript GUI. One reason I put it off until I could ask a machine to do it for me is that the part of the program that is the same in the text-based version as in the GUI version -- the code that actually interprets Karel commands -- is inherently interesting, and absolutely has to be 100% correct. On the other hand, I find the parts about getting (for example) the GUI text box pane to display in exactly the right place to be kind of boring, and it's okay if there are small problems with it. 
 
@@ -164,4 +164,6 @@ This is to say: LLMs are good at the boring part, which is pretty cool, and they
 
 One 2025 study (by the research group METR) found that experienced developers working on large projects they knew well were about 19% *slower* when using AI tools -- while believing they'd been about 20% *faster*. The tools have improved since then, and 2026-era industry estimates tend to find gains that are real -- but far more modest than expected. One big reason: reviewing generated code for subtle errors takes time, and it takes most of the same knowledge of computer science and computer engineering that writing the code yourself does.
 
-In short: it's a very, very good idea to learn the underlying concepts instead of just letting LLMs write code for you, because once you start writing programs above a certain level of complexity you will run into serious problems if you don't actually understand what the LLM generates.
+Full disclosure: an LLM wrote the last paragraph.
+
+In any case, it's a very, very good idea to learn the underlying concepts instead of just letting LLMs write code for you, because once you start writing programs above a certain level of complexity you will run into serious problems if you don't actually understand what the LLM generates. Although your grades are derived from your responses to assignments, this class isn't *about* the assignments. Instead, it's about the exercise you get while working on the assignments. A forklift can lift more weight than you can. However, getting a workout requires lifting things with your own muscles instead of with a forklift.
