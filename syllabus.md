@@ -2,7 +2,7 @@
 
 **Solano Community College**
 
-*Course schedule Fall 2022*
+*Course schedule Fall 2026*
 
 *Instructor: Ben Allen*
 
@@ -16,7 +16,7 @@
 
 Class meets Mondays and Wednesdays, 11:00 AM to 12:55 PM.
 
-- **Note:** This class follows the “Berkeley time” convention established at Cal – classes start 10 minutes after their listed time. As such, lectures will start at **11:10 AM**.
+- **Note:** This class follows the “Berkeley time” convention established at Cal, where lectures start 10 minutes after their listed time. As such, lectures will start at **11:10 AM**.
 
 Class time is structured as follows:
 
@@ -39,7 +39,7 @@ If you can’t come in face-to-face during office hours but would like to meet, 
 
 **Email:** <benjamin.allen@solano.edu>
 
-I will generally respond to emails sent during the week within 24 hours of the time they’re sent, but I am very distractible. For emails sent over the weekend, I will respond on the following Monday. I encourage you to re-send emails if I haven’t responded to them in a timely fashion -- extra credit 
+I will respond to emails sent during the week within 24 hours of the time they’re sent, and generally faster than that for emails sent during the work day. For emails sent over the weekend, I will respond on the following Monday. I encourage you to re-send emails if I haven’t responded to them in a timely fashion -- I do confess, I am very distractible and sometimes miss emails. I will give a small amount of extra credit if I haven’t responded in 48 workweek-hours, and you remind me about it.
 
 ## Course overview
 
@@ -61,7 +61,7 @@ Upon completion of this class, students will be able to do the following:
 - Analyze a problem and design a solution for that problem.
 - Write program code for the problem solution.
 
-*Note: I'm pretty sure the official course objectives above haven't been updated since about 2006. The course objectives below are in practice what we care about.*
+*Note: I'm pretty sure the official course objectives above haven't been updated since the 2010s. The course objectives below are in practice what we care about.*
 
 ## Detailed Course Objectives
 
@@ -108,7 +108,7 @@ In short: please only stay in this class if you are prepared to spend a *lot* of
 
 ### Grading overview
 
-I generally despise giving tests; there is a large amount of very good research showing that learners tend not to retain information they learned while cramming for tests. As such, I've provisionally decided this semester to *not* have exams, and to make the entire grade derived from work on assignments. These assignments will be a mixture of short exercises and larger projects; generally the solutions to the short exercises flow directly into the projects -- what look like isolated solutions to contrived problems
+I generally despise giving tests; there is a large amount of very good research showing that learners tend not to retain information they learned while cramming for tests. As such, I've provisionally decided this semester to *not* have exams, and to make the entire grade derived from work on assignments. These assignments will be a mixture of short exercises and larger projects; generally the solutions to the short exercises flow directly into the projects -- what look like isolated solutions to contrived problems are often solutions to major portions of the assignments.
 
 ### Functionality grading and style grading
 
@@ -152,7 +152,7 @@ So there are some things LLMs are really really good at, and some things they're
 
 And when they fail in these situations, the failures are often *subtle*: code that looks right, runs, and is wrong in a way you won't catch unless you understand it.
 
-**For my part:** I tend to use LLMs for certain rote/repetitive tasks -- I often use them to correct accessibility-related errors and formatting inconsistencies in slide decks.
+**For my part:** I tend to use LLMs for certain rote/repetitive tasks -- I often use them to correct accessibility-related errors and formatting inconsistencies in slide decks. I've also used them for proofreading course materials, like this syllabus.
 
 As far as coding with them: I find them very useful for writing "boilerplate-heavy" code; for example, I "vibe-coded" the graphical user interface of the Karel the Robot tool that's on the class GitHub. Before this semester I used a text-based interface for this tool, because I could never quite find the time to write the JavaScript GUI. One reason I put it off until I could ask a machine to do it for me is that the part of the program that is the same in the text-based version as in the GUI version -- the code that actually interprets Karel commands -- is inherently interesting, and absolutely has to be 100% correct. On the other hand, I find the parts about getting (for example) the GUI text box pane to display in exactly the right place to be kind of boring, and it's okay if there are small problems with it. 
 
@@ -165,6 +165,3 @@ This is to say: LLMs are good at the boring part, which is pretty cool, and they
 One 2025 study (by the research group METR) found that experienced developers working on large projects they knew well were about 19% *slower* when using AI tools -- while believing they'd been about 20% *faster*. The tools have improved since then, and 2026-era industry estimates tend to find gains that are real -- but far more modest than expected. One big reason: reviewing generated code for subtle errors takes time, and it takes most of the same knowledge of computer science and computer engineering that writing the code yourself does.
 
 In short: it's a very, very good idea to learn the underlying concepts instead of just letting LLMs write code for you, because once you start writing programs above a certain level of complexity you will run into serious problems if you don't actually understand what the LLM generates.
-
-
-
