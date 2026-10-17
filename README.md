@@ -12,11 +12,11 @@ This course runs as two sections. Both use the slides and materials from the cla
 ## Using this site
 
 - Course materials are all available on the class [GitHub repository](https://github.com/ben-allen/CIS-001/). As I develop new materials I post them on GitHub and then later mirror them on Canvas -- as such, there will generally be "early-access" materials for future weeks on the GitHub.
-- Slides are posted right before each in-person class, so online students can generally see the week's slides here before the videos are posted.
+- Slides are posted to GitHub before each in-person class, so online students can generally see the week's slides there before the videos are posted to Canvas.
 - Assignments are turned in on Canvas.
 - You don't need a GitHub account to view the material on the GitHub repo. Slides are PDFs and open right in your browser.
 
-## Slides, in order
+## Slides
 
 | # | Week | Topic | Slides |
 |---|------|-------|--------|
