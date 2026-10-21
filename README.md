@@ -9,6 +9,11 @@ This course runs as two sections. Both use the slides and materials from the cla
 - **In person:** Mondays and Wednesdays in Room 502. Class is listed at 11:00 AM, but lecture starts at **11:10 AM** ("Berkeley time"). Mondays mostly introduce new material with short exercises; Wednesdays are mostly lab time for larger assignments. [Details](syllabus.md#for-students-in-the-in-person-section)
 - **Online (asynchronous):** about two videos a week, recorded with the same slides the in-person section uses. Videos are generally recorded on Fridays and posted over the weekend. [Details](syllabus.md#for-students-in-the-asynchronous-online-section)
 
+## Textbook and Python development environment
+
+- We will be using [*Think Python*](https://allendowney.github.io/ThinkPython/) as our textbook. 
+- I recommend using [Google Colab](https://colab.new) &mdash; the development environment that the textbook itself uses &mdash; for working on your assignments in this class. 
+
 ## Using this site
 
 - Course materials are all available on the class [GitHub repository](https://github.com/ben-allen/CIS-001/). As I develop new materials I post them on GitHub and then later mirror them on Canvas -- as such, there will generally be "early-access" materials for future weeks on the GitHub.
