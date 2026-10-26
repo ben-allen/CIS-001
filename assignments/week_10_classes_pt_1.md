@@ -6,7 +6,7 @@
 
 **Due:** Monday, November 2
 
-**Submit:** your finished `dates.py`
+**Submit:** your finished [`dates.py`](https://ben-allen.github.io/CIS-001/assignments/dates.py)
 
 In the slides we built a `Time` class and wrote functions that make, print, change, and copy `Time` objects. In this assignment you'll do the same for calendar dates. Dates are trickier than times: months have different lengths, and February depends on the year.
 
