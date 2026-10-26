@@ -1,8 +1,11 @@
 # Assignment: Working with Dates
 
 **Covers:** Think Python chapter 14 (classes and functions) and the week 8 slides, plus earlier chapters.
+
 **Points:** 15
+
 **Due:** Monday, November 2
+
 **Submit:** your finished `dates.py`
 
 In the slides we built a `Time` class and wrote functions that make, print, change, and copy `Time` objects. In this assignment you'll do the same for calendar dates. Dates are trickier than times: months have different lengths, and February depends on the year.
