@@ -1,5 +1,6 @@
 # CIS001 Week 8-9 In-Class: Doing Things with Functions
 
+Note: [These are the slides](https://ben-allen.github.io/CIS-001/slides/cis001_week_8_tuples_functions.pdf) associated with this assignment.
 
 ## How to work through this
 
