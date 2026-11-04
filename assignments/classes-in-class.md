@@ -107,7 +107,7 @@ print(Card(5, "spades") < Card(5, "hearts"))
 For (b): <code>print(sorted(hand))</code> prints a list, so which dunder method shows the cards? <code>print(max(hand))</code> prints one card, so which one is used there?
 </details>
 
-## Problem 5 (if you have time): face cards
+## Problem 5: face cards
 
 Change `__str__` so that aces and face cards print with their names: rank 1 prints as `A`, 11 as `J`, 12 as `Q`, and 13 as `K`. Every other rank prints as its number. Leave `__repr__` alone.
 
