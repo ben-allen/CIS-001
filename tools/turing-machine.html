@@ -1,0 +1,651 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Turing Machine</title>
+<style>
+  :root {
+    --navy: #0A2A66;
+    --navy-soft: #C9D6F2;
+    --blue: #1D4ED8;
+    --blue-tint: #E8EEFB;
+    --head: #9C6510;
+    --ink: #1F2328;
+    --muted: #57606A;
+    --line: #D0D7E2;
+    --control-line: #8C959F;
+    --page: #F4F6FA;
+    --ok: #18702F;
+    --ok-tint: #E9F5EC;
+    --bad: #B42318;
+    --bad-tint: #FDECEA;
+    --mono: ui-monospace, Consolas, "Cascadia Mono", Menlo, "Courier New", monospace;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--page);
+    color: var(--ink);
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+    font-size: 16px;
+    line-height: 1.45;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+  }
+  header, footer { background: var(--navy); color: #FFFFFF; }
+  header { padding: 14px 24px; }
+  header .school { font-size: 13px; color: var(--navy-soft); letter-spacing: 0.03em; }
+  header h1 { margin: 0; font-size: 26px; font-weight: 700; }
+  main {
+    width: 100%;
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 20px 24px 32px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    flex-grow: 1;
+  }
+  .card {
+    background: #FFFFFF;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 18px 22px;
+  }
+  h2 { margin: 0 0 12px; font-size: 19px; color: var(--navy); }
+
+  /* status chips */
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px; font-size: 15px; }
+  .chip { background: var(--page); border: 1px solid var(--line); border-radius: 999px; padding: 4px 14px; }
+  .chip.state { background: var(--blue-tint); border-color: var(--blue-tint); color: var(--navy); font-weight: 600; }
+  .mono { font-family: var(--mono); }
+
+  /* tape */
+  .tape-row { display: flex; align-items: center; gap: 8px; }
+  .tape-window { flex-grow: 1; overflow: hidden; padding: 8px 0 2px; }
+  .tape { display: flex; justify-content: center; }
+  .square { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+  .square button {
+    width: var(--cell); height: 60px;
+    border: 1.5px solid var(--ink);
+    margin-left: -1.5px;
+    background: #FFFFFF;
+    color: var(--ink);
+    font: 26px var(--mono);
+    cursor: pointer;
+    padding: 0;
+  }
+  .square.head button {
+    position: relative;
+    z-index: 1;
+    outline: 7px solid var(--head);
+    outline-offset: -1px;
+    border-color: var(--head);
+  }
+  .square button:focus-visible { box-shadow: inset 0 0 0 3px var(--blue); }
+  .square .num { font: 12px var(--mono); color: var(--muted); }
+  .square.head .num { color: var(--head); font-weight: 700; }
+  .arrow-btn {
+    flex-shrink: 0;
+    width: 44px; height: 60px;
+    border: 1px solid var(--control-line);
+    border-radius: 6px;
+    background: #E6EAF0;
+    color: var(--ink);
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+    margin-bottom: 20px;
+  }
+  .hint { margin: 10px 0 0; font-size: 14px; color: var(--muted); }
+
+  /* controls */
+  .controls { display: flex; flex-wrap: wrap; gap: 10px; border-top: 1px solid #E3E8EF; margin-top: 16px; padding-top: 16px; }
+  button.btn {
+    min-height: 44px;
+    padding: 0 18px;
+    border: 1px solid var(--control-line);
+    border-radius: 8px;
+    background: #FFFFFF;
+    color: var(--ink);
+    font: 500 15px system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+    cursor: pointer;
+    display: inline-flex; align-items: center; gap: 8px;
+  }
+  button.btn.outline { border-color: var(--blue); color: var(--blue); font-weight: 600; }
+  button.btn.primary { border-color: var(--blue); background: var(--blue); color: #FFFFFF; font-weight: 600; min-width: 96px; justify-content: center; }
+  button.btn:disabled { opacity: 0.45; cursor: not-allowed; }
+  button.btn:focus-visible, .arrow-btn:focus-visible { outline: 3px solid var(--blue); outline-offset: 2px; }
+
+  /* message line */
+  .message { margin-top: 14px; border-radius: 8px; padding: 10px 14px; font-size: 15px; border: 1px solid transparent; }
+  .message:empty { display: none; }
+  .message.ok { background: var(--ok-tint); border-color: var(--ok); }
+  .message.bad { background: var(--bad-tint); border-color: var(--bad); }
+  .message.info { background: var(--blue-tint); border-color: var(--blue); }
+
+  /* rules table */
+  table.rules { border-collapse: collapse; }
+  table.rules th { font-weight: 700; padding: 4px 10px; }
+  table.rules thead th { font-size: 15px; }
+  table.rules thead th.state-col { color: var(--muted); font-weight: 600; text-align: right; }
+  table.rules tbody th { text-align: right; font-size: 17px; }
+  table.rules td.cell { padding: 0; border: 1.5px solid var(--ink); }
+  table.rules input {
+    width: 112px; height: 44px;
+    border: none;
+    text-align: center;
+    font: 19px var(--mono);
+    color: var(--ink);
+    background: #FFFFFF;
+    text-transform: uppercase;
+  }
+  table.rules input:focus { outline: 3px solid var(--blue); outline-offset: -3px; }
+  table.rules input.next { background: var(--blue); color: #FFFFFF; font-weight: 600; }
+  table.rules input.problem { outline: 3px solid var(--bad); outline-offset: -3px; background: var(--bad-tint); color: var(--ink); }
+  table.rules td.pointer { width: 40px; padding-left: 8px; }
+  table.rules td.pointer svg { display: none; }
+  table.rules tr.current td.pointer svg { display: block; }
+  .row-buttons { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 14px; }
+  .rule-problem { margin: 12px 0 0; font-size: 15px; color: var(--bad); }
+  .rule-problem:empty { display: none; }
+  .how {
+    margin-top: 16px;
+    background: var(--page);
+    border-radius: 8px;
+    padding: 12px 16px;
+    font-size: 15px;
+  }
+  .how p { margin: 0 0 6px; }
+  .how p:last-child { margin: 0; }
+
+  footer { padding: 14px 24px; font-size: 14px; color: var(--navy-soft); }
+
+  @media (max-width: 560px) {
+    header, main, footer { padding-left: 14px; padding-right: 14px; }
+    .card { padding: 14px 12px; }
+    .arrow-btn { width: 34px; }
+    .square button { height: 52px; font-size: 22px; }
+    .arrow-btn { height: 52px; }
+    table.rules input { width: 88px; font-size: 17px; }
+    table.rules th { padding: 4px 6px; }
+    button.btn { padding: 0 14px; }
+  }
+</style>
+</head>
+<body>
+<header>
+  <div class="school">Solano Community College</div>
+  <h1>Turing Machine</h1>
+</header>
+
+<main>
+  <section class="card" aria-labelledby="tape-heading">
+    <h2 id="tape-heading" class="visually-hidden" style="position:absolute;left:-9999px">Tape</h2>
+    <div class="chips" aria-live="polite">
+      <span class="chip state" id="chip-state">State 1</span>
+      <span class="chip" id="chip-step">Step 0</span>
+      <span class="chip" id="chip-head">Head on square 0, reading 0</span>
+    </div>
+
+    <div class="tape-row">
+      <button class="arrow-btn" id="head-left" aria-label="Move the head one square left">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>
+      </button>
+      <div class="tape-window" id="tape-window">
+        <div class="tape" id="tape" role="group" aria-label="Tape"></div>
+      </div>
+      <button class="arrow-btn" id="head-right" aria-label="Move the head one square right">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg>
+      </button>
+    </div>
+    <p class="hint">Click a square to flip it between 0 and 1. Use the arrow buttons to move the head before you start. The brown frame is the head.</p>
+
+    <div class="controls">
+      <button class="btn outline" id="step-btn">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 4l10 8-10 8V4z"/><path d="M19 5v14"/></svg>Step</button>
+      <button class="btn primary" id="run-btn">Run</button>
+      <button class="btn" id="reset-btn">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/></svg>Reset</button>
+      <button class="btn" id="clear-btn">Clear tape</button>
+    </div>
+
+    <div class="message" id="message" role="status" aria-live="polite"></div>
+  </section>
+
+  <section class="card" aria-labelledby="rules-heading">
+    <h2 id="rules-heading">Rules</h2>
+    <table class="rules">
+      <thead>
+        <tr>
+          <th scope="col" class="state-col">state</th>
+          <th scope="col">reads 0</th>
+          <th scope="col">reads 1</th>
+          <td></td>
+        </tr>
+      </thead>
+      <tbody id="rules-body"></tbody>
+    </table>
+    <p class="rule-problem" id="rule-problem" aria-live="polite"></p>
+    <div class="row-buttons">
+      <button class="btn" id="add-state">+ Add a state</button>
+      <button class="btn" id="remove-state">Remove the last state</button>
+    </div>
+    <div class="how">
+      <p><span class="mono"><b>1R2</b></span> means: write 1, move right, then go to state 2.</p>
+      <p>The machine starts in state 1. Going to state 0 means halt.</p>
+      <p>Leave a cell blank if that case should never happen. If the machine ever needs a blank cell, it stops and tells you.</p>
+    </div>
+  </section>
+</main>
+
+<footer>Based on the Turing machine simulators by Eric Roberts and Chris Gregg (Stanford CS 208E).</footer>
+
+<!-- The machine itself. No page code in here, so it can be tested on its own. -->
+<script id="engine">
+  // Reads one table cell. Blank (or "-") means no rule.
+  // Returns {blank: true}, {bad: true}, or {write, move, next}.
+  function parseRule(text) {
+    var t = String(text || "").replace(/\s+/g, "").toUpperCase();
+    if (t === "" || t === "-") return { blank: true };
+    var m = /^([01])([LR])(\d+)$/.exec(t);
+    if (!m) return { bad: true };
+    return { write: Number(m[1]), move: m[2] === "R" ? 1 : -1, next: Number(m[3]) };
+  }
+
+  function normalizeRule(text) {
+    var p = parseRule(text);
+    if (p.blank) return "";
+    if (p.bad) return String(text).trim();
+    return p.write + (p.move === 1 ? "R" : "L") + p.next;
+  }
+
+  // m = {tape: Set of squares holding 1, head, state, steps}
+  // rules = array of [reads0, reads1] strings; rules[0] is state 1.
+  // Order: write, move, then change state.
+  function stepMachine(m, rules) {
+    if (m.state === 0) return { kind: "halted" };
+    if (m.state > rules.length) {
+      return { kind: "error", text: "There is no state " + m.state + " in the table." };
+    }
+    var sym = m.tape.has(m.head) ? 1 : 0;
+    var cellText = rules[m.state - 1][sym];
+    var r = parseRule(cellText);
+    var where = { row: m.state - 1, col: sym };
+    if (r.blank) {
+      return { kind: "error", cell: where,
+        text: "There is no rule for state " + m.state + " reading " + sym + "." };
+    }
+    if (r.bad) {
+      return { kind: "error", cell: where,
+        text: "The rule for state " + m.state + " reading " + sym + " is “" + String(cellText).trim() +
+              "”. Rules look like 1R2: a symbol, L or R, and a state." };
+    }
+    if (r.next > rules.length) {
+      return { kind: "error", cell: where,
+        text: "The rule for state " + m.state + " reading " + sym + " goes to state " + r.next +
+              ", but the table only has " + rules.length + (rules.length === 1 ? " state." : " states.") };
+    }
+    if (r.write === 1) m.tape.add(m.head); else m.tape.delete(m.head);
+    m.head += r.move;
+    m.state = r.next;
+    m.steps += 1;
+    return { kind: m.state === 0 ? "halted" : "ok" };
+  }
+
+  // What's on the tape after a halt. Well-formed = one block of 1s, head on the first.
+  function describeTape(m) {
+    var ones = Array.from(m.tape).sort(function (a, b) { return a - b; });
+    var count = ones.length;
+    var block = count > 0 && ones[count - 1] - ones[0] === count - 1;
+    return {
+      count: count,
+      wellFormed: block && m.head === ones[0],
+      oneBlock: block
+    };
+  }
+
+  function haltMessage(m) {
+    var d = describeTape(m);
+    var after = "Halted after " + m.steps + (m.steps === 1 ? " step. " : " steps. ");
+    if (d.count === 0) return { ok: false, text: after + "The tape is blank." };
+    if (d.wellFormed) {
+      return { ok: true, text: after + "The tape holds " + d.count + ", a well-formed number." };
+    }
+    var why = d.oneBlock ? "the head isn’t on the first 1" : "the 1s aren’t all in one block";
+    return { ok: false, text: after + "The tape has " + d.count + (d.count === 1 ? " one" : " ones") +
+      " on it, but it isn’t a well-formed number (" + why + ")." };
+  }
+</script>
+
+<script>
+(function () {
+  var STORE = "turing-machine-v1";
+  var STEP_MS = 250;
+
+  // Starts with the first sample machine from the lecture.
+  var rules = [["1R2", "1L2"], ["1L1", "1L0"]];
+  var start = { tape: new Set(), head: 0 };   // the configuration Reset goes back to
+  var m = null;                                // the running machine
+  var status = "ready";                        // ready | paused | running | halted | error
+  var errorCell = null;
+  var timer = null;
+  var viewLeft = 0;
+  var viewCount = 15;
+
+  var $ = function (id) { return document.getElementById(id); };
+  var tapeEl = $("tape"), windowEl = $("tape-window"), bodyEl = $("rules-body");
+  var messageEl = $("message");
+
+  // ---------- saving in this browser (optional) ----------
+  function save() {
+    try {
+      localStorage.setItem(STORE, JSON.stringify({
+        rules: rules, tape: Array.from(start.tape), head: start.head
+      }));
+    } catch (e) { /* storage unavailable: fine */ }
+  }
+  function load() {
+    try {
+      var raw = localStorage.getItem(STORE);
+      if (!raw) return;
+      var d = JSON.parse(raw);
+      if (Array.isArray(d.rules) && d.rules.length > 0) {
+        rules = d.rules.map(function (r) { return [String(r[0] || ""), String(r[1] || "")]; });
+      }
+      if (Array.isArray(d.tape)) start.tape = new Set(d.tape.filter(Number.isInteger));
+      if (Number.isInteger(d.head)) start.head = d.head;
+    } catch (e) { /* ignore a bad or missing save */ }
+  }
+
+  function freshMachine() {
+    m = { tape: new Set(start.tape), head: start.head, state: 1, steps: 0 };
+    status = "ready";
+    errorCell = null;
+    setMessage("", "");
+  }
+
+  // ---------- tape ----------
+  function cellWidth() { return window.innerWidth <= 560 ? 44 : 56; }
+
+  function measure() {
+    var w = windowEl.clientWidth;
+    var n = Math.floor(w / (cellWidth() - 1.5));
+    if (n % 2 === 0) n -= 1;
+    viewCount = Math.max(5, Math.min(31, n));
+  }
+
+  function keepHeadVisible(force) {
+    if (force || m.head < viewLeft + 1 || m.head > viewLeft + viewCount - 2) {
+      viewLeft = m.head - Math.floor(viewCount / 2);
+    }
+  }
+
+  function label(i) { return i < 0 ? "−" + (-i) : String(i); }
+
+  function renderTape() {
+    var focused = document.activeElement && document.activeElement.dataset
+      ? document.activeElement.dataset.square : undefined;
+    tapeEl.style.setProperty("--cell", cellWidth() + "px");
+    tapeEl.textContent = "";
+    for (var i = viewLeft; i < viewLeft + viewCount; i++) {
+      var v = m.tape.has(i) ? 1 : 0;
+      var wrap = document.createElement("div");
+      wrap.className = "square" + (i === m.head ? " head" : "");
+      var b = document.createElement("button");
+      b.type = "button";
+      b.textContent = v;
+      b.dataset.square = i;
+      b.setAttribute("aria-label", "Square " + i + ": " + v + (i === m.head ? ", head is here" : "") + ". Click to flip.");
+      b.addEventListener("click", flipSquare);
+      var num = document.createElement("span");
+      num.className = "num";
+      num.textContent = label(i);
+      num.setAttribute("aria-hidden", "true");
+      wrap.appendChild(b);
+      wrap.appendChild(num);
+      tapeEl.appendChild(wrap);
+    }
+    if (focused !== undefined) {
+      var again = tapeEl.querySelector('[data-square="' + focused + '"]');
+      if (again) again.focus();
+    }
+  }
+
+  // Changing the tape or the head by hand starts the machine over from this tape.
+  function editStart(change) {
+    stop();
+    if (status !== "ready") {
+      start.tape = new Set(m.tape);
+      start.head = m.head;
+    }
+    change();
+    freshMachine();
+    save();
+    render();
+  }
+
+  function flipSquare(e) {
+    var i = Number(e.currentTarget.dataset.square);
+    editStart(function () {
+      if (start.tape.has(i)) start.tape.delete(i); else start.tape.add(i);
+    });
+  }
+
+  function moveHead(d) {
+    editStart(function () { start.head += d; });
+  }
+
+  // ---------- rules ----------
+  function buildRules() {
+    bodyEl.textContent = "";
+    rules.forEach(function (row, r) {
+      var tr = document.createElement("tr");
+      var th = document.createElement("th");
+      th.scope = "row";
+      th.textContent = r + 1;
+      tr.appendChild(th);
+      for (var c = 0; c < 2; c++) {
+        var td = document.createElement("td");
+        td.className = "cell";
+        var inp = document.createElement("input");
+        inp.type = "text";
+        inp.value = row[c];
+        inp.maxLength = 8;
+        inp.autocomplete = "off";
+        inp.spellcheck = false;
+        inp.setAttribute("autocapitalize", "characters");
+        inp.setAttribute("aria-label", "State " + (r + 1) + ", reading " + c);
+        inp.dataset.row = r;
+        inp.dataset.col = c;
+        inp.addEventListener("input", ruleTyped);
+        inp.addEventListener("change", ruleDone);
+        inp.addEventListener("keydown", ruleKeys);
+        td.appendChild(inp);
+        tr.appendChild(td);
+      }
+      var p = document.createElement("td");
+      p.className = "pointer";
+      p.innerHTML = '<svg width="28" height="20" viewBox="0 0 28 20" role="img" aria-label="current state">' +
+        '<path d="M2 10h16" stroke="#1D4ED8" stroke-width="4" stroke-linecap="round"/>' +
+        '<path d="M10 3l-8 7 8 7" fill="none" stroke="#1D4ED8" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+      tr.appendChild(p);
+      bodyEl.appendChild(tr);
+    });
+  }
+
+  function ruleTyped(e) {
+    var r = Number(e.target.dataset.row), c = Number(e.target.dataset.col);
+    rules[r][c] = e.target.value;
+    // Fixing the rule that stopped the machine lets it carry on.
+    if (status === "error") { status = "paused"; errorCell = null; setMessage("", ""); }
+    save();
+    render();
+  }
+
+  function ruleDone(e) {
+    var r = Number(e.target.dataset.row), c = Number(e.target.dataset.col);
+    rules[r][c] = normalizeRule(e.target.value);
+    e.target.value = rules[r][c];
+    save();
+    render();
+  }
+
+  // Enter moves down a column, like a spreadsheet.
+  function ruleKeys(e) {
+    if (e.key !== "Enter") return;
+    e.preventDefault();
+    var r = Number(e.target.dataset.row) + (e.shiftKey ? -1 : 1), c = e.target.dataset.col;
+    var next = bodyEl.querySelector('input[data-row="' + r + '"][data-col="' + c + '"]');
+    if (next) next.focus(); else e.target.blur();
+  }
+
+  // The first cell that can't be read, for the line under the table.
+  function firstProblem() {
+    for (var r = 0; r < rules.length; r++) {
+      for (var c = 0; c < 2; c++) {
+        var p = parseRule(rules[r][c]);
+        if (p.bad) {
+          return { row: r, col: c, text: "State " + (r + 1) + ", reads " + c + ": “" + rules[r][c].trim() +
+            "” isn’t a rule. Rules look like 1R2: a symbol, L or R, and a state." };
+        }
+        if (!p.blank && p.next > rules.length) {
+          return { row: r, col: c, text: "State " + (r + 1) + ", reads " + c + ": there is no state " + p.next + " yet." };
+        }
+      }
+    }
+    return null;
+  }
+
+  function renderRules() {
+    var problem = firstProblem();
+    $("rule-problem").textContent = problem ? problem.text : "";
+    var nextRow = -1, nextCol = -1;
+    if ((status === "ready" || status === "paused" || status === "running") && m.state >= 1 && m.state <= rules.length) {
+      nextRow = m.state - 1;
+      nextCol = m.tape.has(m.head) ? 1 : 0;
+    }
+    var rows = bodyEl.querySelectorAll("tr");
+    rows.forEach(function (tr, r) {
+      tr.classList.toggle("current", m.state === r + 1 && status !== "halted");
+      tr.querySelectorAll("input").forEach(function (inp) {
+        var c = Number(inp.dataset.col);
+        var p = parseRule(rules[r][c]);
+        var isProblem = p.bad || (!p.blank && p.next > rules.length) ||
+          (errorCell && errorCell.row === r && errorCell.col === c);
+        inp.classList.toggle("problem", !!isProblem);
+        inp.classList.toggle("next", !isProblem && r === nextRow && c === nextCol);
+        inp.setAttribute("aria-invalid", isProblem ? "true" : "false");
+      });
+    });
+    $("remove-state").disabled = rules.length <= 1;
+  }
+
+  // ---------- status ----------
+  function setMessage(text, kind) {
+    messageEl.textContent = text;
+    messageEl.className = "message" + (kind ? " " + kind : "");
+  }
+
+  function renderStatus() {
+    $("chip-state").textContent = m.state === 0 ? "State 0 (halted)" : "State " + m.state;
+    $("chip-step").textContent = "Step " + m.steps;
+    $("chip-head").textContent = "Head on square " + label(m.head) + ", reading " + (m.tape.has(m.head) ? 1 : 0);
+    var done = status === "halted" || status === "error";
+    $("step-btn").disabled = done || status === "running";
+    $("run-btn").disabled = done;
+    $("run-btn").textContent = status === "running" ? "Pause" : "Run";
+  }
+
+  function render() {
+    renderTape();
+    renderRules();
+    renderStatus();
+  }
+
+  // ---------- running ----------
+  function doStep() {
+    var result = stepMachine(m, rules);
+    if (result.kind === "ok") {
+      if (status !== "running") status = "paused";
+    } else if (result.kind === "halted") {
+      stop();
+      status = "halted";
+      var h = haltMessage(m);
+      setMessage(h.text, h.ok ? "ok" : "info");
+    } else {
+      stop();
+      status = "error";
+      errorCell = result.cell || null;
+      var when = m.steps === 0 ? "Stopped before the first step. "
+        : "Stopped after " + m.steps + (m.steps === 1 ? " step. " : " steps. ");
+      setMessage(when + result.text + " Fix the rule, then press Step or Run to carry on.", "bad");
+    }
+    keepHeadVisible(false);
+    render();
+  }
+
+  function run() {
+    if (status === "halted" || status === "error") return;
+    status = "running";
+    renderStatus();
+    timer = setInterval(doStep, STEP_MS);
+  }
+
+  function stop() {
+    if (timer !== null) { clearInterval(timer); timer = null; }
+    if (status === "running") status = "paused";
+  }
+
+  $("step-btn").addEventListener("click", function () {
+    if (status === "ready" || status === "paused") doStep();
+  });
+  $("run-btn").addEventListener("click", function () {
+    if (status === "running") { stop(); render(); } else run();
+  });
+  $("reset-btn").addEventListener("click", function () {
+    stop();
+    freshMachine();
+    keepHeadVisible(true);
+    render();
+  });
+  $("clear-btn").addEventListener("click", function () {
+    editStart(function () { start.tape = new Set(); });
+  });
+  $("head-left").addEventListener("click", function () { moveHead(-1); });
+  $("head-right").addEventListener("click", function () { moveHead(1); });
+  $("add-state").addEventListener("click", function () {
+    rules.push(["", ""]);
+    save();
+    buildRules();
+    render();
+    var first = bodyEl.querySelector('input[data-row="' + (rules.length - 1) + '"][data-col="0"]');
+    if (first) first.focus();
+  });
+  $("remove-state").addEventListener("click", function () {
+    if (rules.length <= 1) return;
+    rules.pop();
+    if (m.state > rules.length) { stop(); freshMachine(); }
+    save();
+    buildRules();
+    render();
+  });
+
+  window.addEventListener("resize", function () {
+    var before = viewCount;
+    measure();
+    if (viewCount !== before) { keepHeadVisible(true); renderTape(); }
+  });
+
+  // ---------- start ----------
+  load();
+  freshMachine();
+  buildRules();
+  measure();
+  keepHeadVisible(true);
+  render();
+})();
+</script>
+</body>
+</html>
